@@ -21,7 +21,7 @@ package org.code_house.bacnet4j.wrapper.api;
 
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 
-public class Property<B, J> {
+public class Property {
 
     private final Device device;
     private final int id;
@@ -73,7 +73,7 @@ public class Property<B, J> {
 
     @Override
     public String toString() {
-        return "Property['" + name + "' of " + type + " (" + units + "), with description: " + description + "]";
+        return "Property[" + device.getInstanceNumber() + "." + type.name() + "." + id + "]";
     }
 
 }

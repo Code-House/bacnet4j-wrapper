@@ -33,7 +33,7 @@ This project is aimed to offer simple facade thus it is limited to following bac
 
 If you are interested in adding other types of objects to API feel free to submit PR.
 
-Each property of type enlisted above can be read and attempted to set via `client.getPropertyValue` and `client.setPropertyValue` method calls.
+Each property of type enlisted above can be read and attempted to set via `client.getPropertyValue` and `client.setPropertyValue` method calls. There are two variants of set/get property methods - with and without converter argument. If you know type of property then you can convert it upfront to bacnet4j structure. By default library will try to guess, however in most of cases it will fail.
 
 ### How to build
 
@@ -45,3 +45,4 @@ To build project you need:
 
 * [Frozenlock's Bacnet4J fork](https://github.com/Frozenlock/BACnet4J) - this is currently maintained version of bacnet4j used in this project.
 * [Bacnet4J site](http://bacnet.sourceforge.net)
+* [BACNet-openHAB-binding](https://github.com/Code-House/BACNet-openHAB-binding) - openhab binding which uses this project.

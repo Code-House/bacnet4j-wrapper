@@ -19,15 +19,9 @@
  */
 package org.code_house.bacnet4j.wrapper.api;
 
-import com.serotonin.bacnet4j.type.Encodable;
-
 /**
  * @author Łukasz Dywicki <luke@code-house.org>
  */
-public interface TypeMapping<BacNet, Java> {
+public interface TypeMapping<Java> extends BacNetToJavaConverter<Java>, JavaToBacNetConverter<Java> {
 
-    Java fromBacNet(BacNet encodable);
-    Encodable toBacNet(Java value);
-
-    Class<Java> getJavaType();
 }

@@ -171,19 +171,18 @@ public class BacNetIpClient implements BacNetClient {
         }
     }
 
+    public Object getPropertyValue(Property property) {
+        return getPropertyValue(property, new GuessingTypeConverter(property.getType()));
+    }
+
     @Override
-    public <T> T getPropertyValue(Property property) {
-        ReadAccessSpecification readSpecification = new ReadAccessSpecification(
-            new ObjectIdentifier(property.getType().getBacNetType(), property.getId()),
-                PropertyIdentifier.presentValue);
-
+    public <T> T getPropertyValue(Property property, BacNetToJavaConverter<T> converter) {
         try {
-            ReadPropertyMultipleAck presentValue = localDevice.send(property.getDevice().getBacNet4jAddress(),
-                    new ReadPropertyMultipleRequest(new SequenceOf<>(readSpecification))).get();
-            ReadAccessResult readAccessResult = presentValue.getListOfReadAccessResults().get(1);
-            SequenceOf<Result> listOfResults = readAccessResult.getListOfResults();
+            ReadPropertyAck presentValue = localDevice.send(property.getDevice().getBacNet4jAddress(),
+                    new ReadPropertyRequest(new ObjectIdentifier(property.getType().getBacNetType(), property.getId()),
+                            PropertyIdentifier.presentValue)).get();
 
-            return (T) getJavaValue(listOfResults.get(1).getReadResult().getDatum());
+            return (T) getJavaValue(presentValue.getValue(), converter);
         } catch (BACnetException e) {
             throw new BacNetClientException("Could not get property value", e);
         }
@@ -206,7 +205,7 @@ public class BacNetIpClient implements BacNetClient {
                     for (int index = 0; index < listOfReadAccessResults.getCount(); index++) {
                         ReadAccessResult result = listOfReadAccessResults.get(index + 1);
                         logger.info("Reading property {} value from {}", properties.get(propertyIndex), result.getListOfResults());
-                        values.add(getJavaValue((Encodable) result.getListOfResults().get(1).getReadResult().getDatum()));
+                        values.add(getJavaValue(result.getListOfResults().get(1).getReadResult().getDatum(), new GuessingTypeConverter(property.getType())));
                     }
                 } catch (BACnetException e) {
                     throw new BacNetClientException("Unable to read properties.", e);
@@ -217,23 +216,38 @@ public class BacNetIpClient implements BacNetClient {
         return values;
     }
 
-    private Object getJavaValue(Encodable datum) {
-        return TypeMappings.fromBacNet(datum.getClass()).fromBacNet(datum);
+    private <T> T getJavaValue(Encodable datum, BacNetToJavaConverter<T> converter) {
+        if (converter == null) {
+            return null;
+        }
+        return converter.fromBacNet(datum);
     }
 
-    private Encodable getBacNetValue(Object object) {
-        return TypeMappings.fromJava(object.getClass()).toBacNet(object);
+    private <T> Encodable getBacNetValue(T object, JavaToBacNetConverter<T> converter) {
+        if (converter == null) {
+            return null;
+        }
+        return converter.toBacNet(object);
+    }
+
+
+    @Override
+    public <T> void setPropertyValue(Property property, T value, JavaToBacNetConverter<T> converter) {
+        Encodable bacNetValue = getBacNetValue(value, converter);
+        ServiceFuture send = localDevice.send(property.getDevice().getBacNet4jAddress(), new WritePropertyRequest(property.getBacNet4jIdentifier(), PropertyIdentifier.presentValue, null, bacNetValue, null));
+        try {
+            send.get();
+        } catch (BACnetException e) {
+            if (!"Timeout waiting for response.".equals(e.getMessage())) {
+                throw new BacNetClientException("Could not set property value", e);
+            }
+            logger.warn("Ignoring timeout for write property since bacnet4j misses simple ACK's.");
+        }
     }
 
     @Override
     public void setPropertyValue(Property property, Object value) {
-        Encodable bacNetValue = getBacNetValue(value);
-        ServiceFuture send = localDevice.send(property.getDevice().getBacNet4jAddress(), new WritePropertyRequest(property.getBacNet4jIdentifier(), PropertyIdentifier.presentValue, null, bacNetValue, null));
-        try {
-            System.out.println(send.get().getClass());
-        } catch (BACnetException e) {
-            e.printStackTrace();
-        }
+        setPropertyValue(property, value, new GuessingTypeConverter(property.getType()));
     }
 
     private Property createProperty(Device device, ObjectIdentifier id) {
@@ -253,16 +267,11 @@ public class BacNetIpClient implements BacNetClient {
             // present value used for mapping
             // TypeMapping type = getPropertyType(readAccessResults.get(1));
 
-            return new Property<>(device, id.getInstanceNumber(), name, description, units,
+            return new Property(device, id.getInstanceNumber(), name, description, units,
                     Type.valueOf(id.getObjectType()));
         } catch (BACnetException e) {
             throw new BacNetClientException("Unable to fetch property description", e);
         }
-    }
-
-    private TypeMapping getPropertyType(ReadAccessResult readAccessResult) {
-        Encodable datum = readAccessResult.getListOfResults().get(1).getReadResult().getDatum();
-        return TypeMappings.fromBacNet(datum.getClass());
     }
 
     private String getReadValue(ReadAccessResult readAccessResult) {

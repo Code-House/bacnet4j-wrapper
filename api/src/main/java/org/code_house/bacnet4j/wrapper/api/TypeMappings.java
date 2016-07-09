@@ -31,7 +31,7 @@ import java.lang.Boolean;
  * @author Łukasz Dywicki <luke@code-house.org>
  */
 public class TypeMappings {
-
+/*
     public static final TypeMapping<CharacterString, String> STRING = new TypeMapping<CharacterString, String>() {
         @Override
         public String fromBacNet(CharacterString encodable) {
@@ -123,4 +123,5 @@ public class TypeMappings {
         }
         throw new IllegalArgumentException("Unsupported type " + aClass);
     }
+*/
 }
