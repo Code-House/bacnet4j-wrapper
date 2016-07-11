@@ -27,9 +27,12 @@ This project is aimed to offer simple facade thus it is limited to following bac
 * analogInput
 * analogOutput
 * analogValue
-* binaryInput
+* binaryInput (not tested)
 * binaryOutput
 * binaryValue
+* multiStateInput (not tested)
+* multiStateOutput (not tested)
+* multiStateValue (not tested)
 
 If you are interested in adding other types of objects to API feel free to submit PR.
 

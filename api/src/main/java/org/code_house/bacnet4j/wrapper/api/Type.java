@@ -33,7 +33,10 @@ public enum Type {
     ANALOG_VALUE(ObjectType.analogValue),
     BINARY_INPUT(ObjectType.binaryInput),
     BINARY_OUTPUT(ObjectType.binaryOutput),
-    BINARY_VALUE(ObjectType.binaryValue);
+    BINARY_VALUE(ObjectType.binaryValue),
+    MULTISTATE_INPUT(ObjectType.multiStateInput),
+    MULTISTATE_OUTPUT(ObjectType.multiStateOutput),
+    MULTISTATE_VALUE(ObjectType.multiStateValue);
 
     private ObjectType bacNetType;
 
