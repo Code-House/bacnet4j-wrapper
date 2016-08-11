@@ -43,9 +43,7 @@ public interface BacNetClient {
     List<Property> getDeviceProperties(Device device);
     List<Object> getPropertyValues(List<Property> properties);
 
-    <T> T getPropertyValue(Property property);
     <T> T getPropertyValue(Property property, BacNetToJavaConverter<T> converter);
 
-    void setPropertyValue(Property property, Object value);
     <T> void setPropertyValue(Property property, T value, JavaToBacNetConverter<T> converter);
 }

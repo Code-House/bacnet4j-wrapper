@@ -21,11 +21,9 @@ package org.code_house.bacnet4j.wrapper.ip;
 
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.ServiceFuture;
-import com.serotonin.bacnet4j.event.DeviceEventHandler;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.npdu.ip.IpNetwork;
 import com.serotonin.bacnet4j.npdu.ip.IpNetworkBuilder;
-import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
 import com.serotonin.bacnet4j.service.acknowledgement.ReadPropertyAck;
 import com.serotonin.bacnet4j.service.acknowledgement.ReadPropertyMultipleAck;
 import com.serotonin.bacnet4j.service.confirmed.ReadPropertyMultipleRequest;
@@ -35,7 +33,6 @@ import com.serotonin.bacnet4j.service.unconfirmed.WhoIsRequest;
 import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.ReadAccessResult;
-import com.serotonin.bacnet4j.type.constructed.ReadAccessResult.Result;
 import com.serotonin.bacnet4j.type.constructed.ReadAccessSpecification;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
@@ -128,7 +125,7 @@ public class BacNetIpClient implements BacNetClient {
 
     @Override
     public Set<Device> discoverDevices(final long timeout) {
-        return discoverDevices(new NoopLDiscoveryListener(), timeout);
+        return discoverDevices(new NoopDiscoveryListener(), timeout);
     }
 
     @Override
@@ -171,10 +168,6 @@ public class BacNetIpClient implements BacNetClient {
         }
     }
 
-    public Object getPropertyValue(Property property) {
-        return getPropertyValue(property, new GuessingTypeConverter(property.getType()));
-    }
-
     @Override
     public <T> T getPropertyValue(Property property, BacNetToJavaConverter<T> converter) {
         try {
@@ -190,6 +183,7 @@ public class BacNetIpClient implements BacNetClient {
 
     @Override
     public List<Object> getPropertyValues(List<Property> properties) {
+        BypassBacnetConverter converter = new BypassBacnetConverter();
         Device device = properties.get(0).getDevice();
         List<Object> values = new ArrayList<>();
         List<ReadAccessSpecification> specifications = new ArrayList<>();
@@ -205,7 +199,7 @@ public class BacNetIpClient implements BacNetClient {
                     for (int index = 0; index < listOfReadAccessResults.getCount(); index++) {
                         ReadAccessResult result = listOfReadAccessResults.get(index + 1);
                         logger.info("Reading property {} value from {}", properties.get(propertyIndex), result.getListOfResults());
-                        values.add(getJavaValue(result.getListOfResults().get(1).getReadResult().getDatum(), new GuessingTypeConverter(property.getType())));
+                        values.add(getJavaValue(result.getListOfResults().get(1).getReadResult().getDatum(), converter));
                     }
                 } catch (BACnetException e) {
                     throw new BacNetClientException("Unable to read properties.", e);
@@ -243,11 +237,6 @@ public class BacNetIpClient implements BacNetClient {
             }
             logger.warn("Ignoring timeout for write property since bacnet4j misses simple ACK's.");
         }
-    }
-
-    @Override
-    public void setPropertyValue(Property property, Object value) {
-        setPropertyValue(property, value, new GuessingTypeConverter(property.getType()));
     }
 
     private Property createProperty(Device device, ObjectIdentifier id) {

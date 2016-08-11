@@ -20,8 +20,13 @@
 package org.code_house.bacnet4j.wrapper.api;
 
 /**
+ * A dummy discovery listener used when no one is interested in receiving notifications.
+ *
  * @author Łukasz Dywicki <luke@code-house.org>
  */
-public interface TypeMapping<Java> extends BacNetToJavaConverter<Java>, JavaToBacNetConverter<Java> {
+public class NoopDiscoveryListener implements DeviceDiscoveryListener {
+    @Override
+    public void deviceDiscovered(Device device) {
 
+    }
 }
