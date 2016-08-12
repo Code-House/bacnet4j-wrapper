@@ -3,6 +3,12 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>9</version>
+    </parent>
+
     <groupId>org.code-house.bacnet4j</groupId>
     <artifactId>bacnet4j-wrapper</artifactId>
     <packaging>pom</packaging>
@@ -27,6 +33,17 @@
             <comments>Due to bacnet4j dependency this library must be licensed under GNU GPL.</comments>
         </license>
     </licenses>
+
+    <scm>
+        <connection>scm:git:git://github.com/Code-House/bacnet4j-wrapper.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/Code-House/bacnet4j-wrapper.git</developerConnection>
+        <url>https://github.com/Code-House/karaf-jackson</url>
+    </scm>
+
+    <issueManagement>
+        <system>github</system>
+        <url>http://github.com/Code-House/bacnet4j-wrapper/issues</url>
+    </issueManagement>
 
     <modules>
         <module>api</module>
