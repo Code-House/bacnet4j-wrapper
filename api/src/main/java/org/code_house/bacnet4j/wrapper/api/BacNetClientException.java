@@ -22,7 +22,7 @@ package org.code_house.bacnet4j.wrapper.api;
 /**
  * Exception thrown by client in case of failures.
  *
- * @author Łukasz Dywicki <luke@code-house.org>
+ * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
  */
 public class BacNetClientException extends RuntimeException {
 

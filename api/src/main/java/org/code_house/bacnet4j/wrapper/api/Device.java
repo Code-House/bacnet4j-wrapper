@@ -30,7 +30,7 @@ import java.util.Arrays;
 /**
  * Representation of bacnet device.
  *
- * @author Łukasz Dywicki <luke@code-house.org>
+ * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
  */
 public class Device {
 

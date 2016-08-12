@@ -46,7 +46,7 @@ import java.util.concurrent.ExecutorService;
  * By default notifications are handled by UDP transport thread which blocks outgoing communication. This simple bridge
  * is using given executor service to host ad-hoc threads handling notification.
  *
- * @author Łukasz Dywicki <luke@code-house.org>
+ * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
  */
 public class ForwardingAdapter extends DeviceEventAdapter {
 

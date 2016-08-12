@@ -32,7 +32,7 @@ import java.util.*;
 /**
  * Simple class to run discovery across all network interfaces, fetch discovered devices properties and it's values.
  *
- * @author Łukasz Dywicki <luke@code-house.org>
+ * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
  */
 public class DiscoveryMain {
 

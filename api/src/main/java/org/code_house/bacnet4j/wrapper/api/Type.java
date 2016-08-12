@@ -24,7 +24,7 @@ import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 /**
  * Bacnet property type.
  *
- * @author Łukasz Dywicki <luke@code-house.org>
+ * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
  */
 public enum Type {
 

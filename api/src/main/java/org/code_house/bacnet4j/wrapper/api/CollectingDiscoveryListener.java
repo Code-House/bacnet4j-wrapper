@@ -25,7 +25,7 @@ import java.util.Set;
 /**
  * Simple discovery listener which just returns all devices.
  *
- * @author Łukasz Dywicki <luke@code-house.org>
+ * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
  */
 public class CollectingDiscoveryListener implements DeviceDiscoveryListener {
 

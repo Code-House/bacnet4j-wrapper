@@ -34,7 +34,7 @@ import java.util.concurrent.Callable;
 /**
  * Callable responsible for calling collecting discovered devices and also sending discovery notifications.
  *
- * @author Łukasz Dywicki <luke@code-house.org>
+ * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
  */
 public class DiscoveryCallable extends DeviceEventAdapter implements Callable<Set<Device>> {
 

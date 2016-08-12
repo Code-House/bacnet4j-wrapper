@@ -26,7 +26,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Definition of bacnet client
  *
- * @author Łukasz Dywicki <luke@code-house.org>
+ * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
  */
 public interface BacNetClient {
 
