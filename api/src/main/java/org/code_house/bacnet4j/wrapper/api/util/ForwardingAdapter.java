@@ -24,6 +24,7 @@ import com.serotonin.bacnet4j.RemoteObject;
 import com.serotonin.bacnet4j.event.DeviceEventAdapter;
 import com.serotonin.bacnet4j.event.DeviceEventListener;
 import com.serotonin.bacnet4j.obj.BACnetObject;
+import com.serotonin.bacnet4j.service.Service;
 import com.serotonin.bacnet4j.service.confirmed.ReinitializeDeviceRequest;
 import com.serotonin.bacnet4j.type.constructed.*;
 import com.serotonin.bacnet4j.type.enumerated.EventState;
@@ -114,28 +115,35 @@ public class ForwardingAdapter extends DeviceEventAdapter {
         });
     }
 
-    @Override
-    public void covNotificationReceived(UnsignedInteger subscriberProcessIdentifier, RemoteDevice initiatingDevice, ObjectIdentifier monitoredObjectIdentifier, UnsignedInteger timeRemaining, SequenceOf<PropertyValue> listOfValues) {
+    public void covNotificationReceived(UnsignedInteger subscriberProcessIdentifier,
+        ObjectIdentifier initiatingDeviceIdentifier, ObjectIdentifier monitoredObjectIdentifier,
+        UnsignedInteger timeRemaining, SequenceOf<PropertyValue> listOfValues) {
+
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                adapter.covNotificationReceived(subscriberProcessIdentifier, initiatingDevice, monitoredObjectIdentifier, timeRemaining, listOfValues);
+                adapter.covNotificationReceived(subscriberProcessIdentifier, initiatingDeviceIdentifier, monitoredObjectIdentifier, timeRemaining, listOfValues);
             }
         });
     }
 
-    @Override
-    public void eventNotificationReceived(UnsignedInteger processIdentifier, RemoteDevice initiatingDevice, ObjectIdentifier eventObjectIdentifier, TimeStamp timeStamp, UnsignedInteger notificationClass, UnsignedInteger priority, EventType eventType, CharacterString messageText, NotifyType notifyType, com.serotonin.bacnet4j.type.primitive.Boolean ackRequired, EventState fromState, EventState toState, NotificationParameters eventValues) {
+    public void eventNotificationReceived(UnsignedInteger processIdentifier, ObjectIdentifier initiatingDeviceIdentifier,
+        ObjectIdentifier eventObjectIdentifier, TimeStamp timeStamp, UnsignedInteger notificationClass,
+        UnsignedInteger priority, EventType eventType, CharacterString messageText, NotifyType notifyType,
+        com.serotonin.bacnet4j.type.primitive.Boolean ackRequired, EventState fromState, EventState toState, NotificationParameters eventValues) {
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                adapter.eventNotificationReceived(processIdentifier, initiatingDevice, eventObjectIdentifier, timeStamp, notificationClass, priority, eventType, messageText, notifyType, ackRequired, fromState, toState, eventValues);
+                adapter.eventNotificationReceived(processIdentifier, initiatingDeviceIdentifier,
+                    eventObjectIdentifier, timeStamp, notificationClass,
+                    priority, eventType, messageText, notifyType,
+                    ackRequired, fromState, toState, eventValues);
             }
         });
     }
 
-    @Override
-    public void textMessageReceived(RemoteDevice textMessageSourceDevice, Choice messageClass, MessagePriority messagePriority, CharacterString message) {
+    public void textMessageReceived(ObjectIdentifier textMessageSourceDevice, Choice messageClass,
+        MessagePriority messagePriority, CharacterString message) {
         executor.execute(new Runnable() {
             @Override
             public void run() {
@@ -144,27 +152,6 @@ public class ForwardingAdapter extends DeviceEventAdapter {
         });
     }
 
-    @Override
-    public void privateTransferReceived(Address from, UnsignedInteger vendorId, UnsignedInteger serviceNumber, Sequence serviceParameters) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                adapter.privateTransferReceived(from, vendorId, serviceNumber, serviceParameters);
-            }
-        });
-    }
-
-    @Override
-    public void reinitializeDevice(Address from, ReinitializeDeviceRequest.ReinitializedStateOfDevice reinitializedStateOfDevice) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                adapter.reinitializeDevice(from, reinitializedStateOfDevice);
-            }
-        });
-    }
-
-    @Override
     public void synchronizeTime(Address from, DateTime dateTime, boolean utc) {
         executor.execute(new Runnable() {
             @Override
@@ -172,5 +159,16 @@ public class ForwardingAdapter extends DeviceEventAdapter {
                 adapter.synchronizeTime(from, dateTime, utc);
             }
         });
+
     }
+
+    public void requestReceived(Address from, Service service) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                adapter.requestReceived(from, service);
+            }
+        });
+    }
+
 }
