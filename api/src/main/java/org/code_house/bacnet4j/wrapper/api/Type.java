@@ -36,11 +36,14 @@ public enum Type {
     BINARY_VALUE(ObjectType.binaryValue),
     MULTISTATE_INPUT(ObjectType.multiStateInput),
     MULTISTATE_OUTPUT(ObjectType.multiStateOutput),
-    MULTISTATE_VALUE(ObjectType.multiStateValue);
+    MULTISTATE_VALUE(ObjectType.multiStateValue),
+    COMMAND(ObjectType.command),
+    CALENDAR(ObjectType.calendar),
+    SCHEDULE(ObjectType.schedule);
 
     private ObjectType bacNetType;
 
-    private Type(ObjectType bacNetType) {
+    Type(ObjectType bacNetType) {
         this.bacNetType = bacNetType;
     }
 
