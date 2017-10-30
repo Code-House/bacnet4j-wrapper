@@ -84,7 +84,7 @@ public class DiscoveryMain {
                         System.out.println("      => No properties found");
                     } else {
                         System.out.println("      => Properties:");
-                        for (Property property : client.getDeviceProperties(device)) {
+                        for (Property property : properties) {
                             Encodable propertyValue = client.getPropertyValue(property, new BypassBacnetConverter());
                             System.out.println(
                                 String.format("          => Type %s id: %d, present value '%s' type %s",
