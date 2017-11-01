@@ -39,7 +39,8 @@ public enum Type {
     MULTISTATE_VALUE(ObjectType.multiStateValue),
     COMMAND(ObjectType.command),
     CALENDAR(ObjectType.calendar),
-    SCHEDULE(ObjectType.schedule);
+    SCHEDULE(ObjectType.schedule),
+    NOTIFICATION_CLASS(ObjectType.notificationClass);
 
     private ObjectType bacNetType;
 
