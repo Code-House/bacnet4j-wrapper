@@ -20,6 +20,7 @@
 package org.code_house.bacnet4j.wrapper.ip;
 
 import com.serotonin.bacnet4j.type.Encodable;
+import org.code_house.bacnet4j.wrapper.api.BacNetClientException;
 import org.code_house.bacnet4j.wrapper.api.BypassBacnetConverter;
 import org.code_house.bacnet4j.wrapper.api.Device;
 import org.code_house.bacnet4j.wrapper.api.Property;
@@ -107,19 +108,24 @@ public class DiscoveryMain {
                     } else {
                         System.out.println("      => Properties:");
                         for (Property property : properties) {
-                            Encodable propertyValue = client.getPropertyValue(property, new BypassBacnetConverter());
-                            System.out.println(
-                                String.format("          => Type %s id: %d, present value '%s' type %s",
-                                    property.getType().name(),
-                                    property.getId(),
-                                    propertyValue,
-                                    propertyValue != null ? propertyValue.getClass().getName() : "<null>"
-                                )
-                            );
-                            System.out.println("             Metadata");
-                            System.out.println("               Name: " + property.getName());
-                            System.out.println("               Units: " + property.getUnits());
-                            System.out.println("               Description: " + property.getDescription());
+                            try {
+                                Encodable propertyValue = client.getPropertyValue(property, new BypassBacnetConverter());
+                                System.out.println(
+                                    String.format("          => Type %s id: %d, present value '%s' type %s",
+                                        property.getType().name(),
+                                        property.getId(),
+                                        propertyValue,
+                                        propertyValue != null ? propertyValue.getClass().getName() : "<null>"
+                                    )
+                                );
+                                System.out.println("             Metadata");
+                                System.out.println("               Name: " + property.getName());
+                                System.out.println("               Units: " + property.getUnits());
+                                System.out.println("               Description: " + property.getDescription());
+                            } catch (BacNetClientException e) {
+                                System.out.println("Could not read property " + property + " value");
+                                e.printStackTrace(System.out);
+                            }
                         }
                     }
 
