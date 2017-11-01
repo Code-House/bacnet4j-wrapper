@@ -28,6 +28,7 @@ import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Simple class to run discovery across all network interfaces, fetch discovered devices properties and it's values.
@@ -37,22 +38,42 @@ import java.util.*;
 public class DiscoveryMain {
 
     public static void main(String[] args) throws Exception {
-        // For each interface ...
-        System.out.println("Fetching network interfaces");
         List<String> interfaceIPs = new ArrayList<>();
-        for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
-            NetworkInterface networkInterface = en.nextElement();
-            if (!networkInterface.isLoopback()) {
 
-                // .. and for each address ...
-                for (Iterator<InterfaceAddress> it = networkInterface.getInterfaceAddresses().iterator(); it.hasNext();) {
+        if (args.length > 0) {
+            String broadcasts = args[0].trim();
+            Arrays.stream(broadcasts.split(","))
+                .map(String::trim)
+                .forEach(interfaceIPs::add);
+        }
 
-                    // ... get IP and Subnet
-                    InterfaceAddress interfaceAddress = it.next();
+        Long timeout = 30L;
+        if (args.length > 1) {
+            timeout = Long.parseLong(args[1]);
+        }
 
-                    InetAddress broadcast = interfaceAddress.getBroadcast();
-                    if (broadcast != null) {
-                        interfaceIPs.add(broadcast.getHostAddress());
+        int deviceId = 1339;
+        if (args.length > 2) {
+            deviceId = Integer.parseInt(args[2]);
+        }
+
+        if (interfaceIPs.isEmpty()) {
+            // For each interface ...
+            System.out.println("Fetching network interfaces");
+            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
+                NetworkInterface networkInterface = en.nextElement();
+                if (!networkInterface.isLoopback()) {
+
+                    // .. and for each address ...
+                    for (Iterator<InterfaceAddress> it = networkInterface.getInterfaceAddresses().iterator(); it.hasNext(); ) {
+
+                        // ... get IP and Subnet
+                        InterfaceAddress interfaceAddress = it.next();
+
+                        InetAddress broadcast = interfaceAddress.getBroadcast();
+                        if (broadcast != null) {
+                            interfaceIPs.add(broadcast.getHostAddress());
+                        }
                     }
                 }
             }
@@ -63,11 +84,12 @@ public class DiscoveryMain {
         }
 
         for (String broadcast : interfaceIPs) {
-            System.out.println("Fetching devices for " + broadcast + " addres with 30 second timeout");
-            BacNetIpClient client = new BacNetIpClient(broadcast, 1339);
+            System.out.println("Device id " + deviceId);
+            System.out.println("Fetching devices for " + broadcast + " addres with " + timeout + " second timeout");
+            BacNetIpClient client = new BacNetIpClient(broadcast, deviceId);
             client.start();
 
-            Set<Device> devices = client.discoverDevices(30000L);
+            Set<Device> devices = client.discoverDevices(TimeUnit.SECONDS.toMillis(timeout));
             if (devices.isEmpty()) {
                 System.out.println(" => No Devices found");
             } else {
