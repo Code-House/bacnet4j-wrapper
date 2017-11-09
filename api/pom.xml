@@ -33,10 +33,6 @@
             <groupId>com.serotonin</groupId>
             <artifactId>bacnet4j</artifactId>
             <version>4.0.1</version>
-            <!--
-            <scope>system</scope>
-            <systemPath>${project.basedir}/../lib/bacnet4j-3.2.4.jar</systemPath>
-            -->
         </dependency>
     </dependencies>
 

@@ -19,6 +19,8 @@
  */
 package org.code_house.bacnet4j.wrapper.api;
 
+import org.code_house.bacnet4j.wrapper.api.property.SimpleProperty;
+
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;

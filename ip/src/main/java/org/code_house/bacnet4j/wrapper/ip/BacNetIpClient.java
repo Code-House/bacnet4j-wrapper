@@ -39,6 +39,8 @@ import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import org.code_house.bacnet4j.wrapper.api.*;
+import org.code_house.bacnet4j.wrapper.api.property.SimpleProperty;
+import org.code_house.bacnet4j.wrapper.api.registry.StandardTypeRegistry;
 import org.code_house.bacnet4j.wrapper.api.util.ForwardingAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +48,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -62,6 +65,7 @@ public class BacNetIpClient implements BacNetClient {
     private final Logger logger = LoggerFactory.getLogger(BacNetIpClient.class);
 
     private final LocalDevice localDevice;
+    private final TypeRegistry typeRegistry;
 
     private ExecutorService executor = Executors.newFixedThreadPool(2, r -> {
         Thread thread = new Thread(r, "bacnet-client-" + instances.incrementAndGet() + "-discovery");
@@ -69,9 +73,13 @@ public class BacNetIpClient implements BacNetClient {
         return thread;
     });
 
+    public BacNetIpClient(TypeRegistry typeRegistry, IpNetwork network, int deviceId) {
+        this.localDevice = new LocalDevice(deviceId, new DefaultTransport(network));
+        this.typeRegistry = typeRegistry;
+    }
+
     public BacNetIpClient(IpNetwork network, int deviceId) {
-        DefaultTransport transport = new DefaultTransport(network);
-        localDevice = new LocalDevice(deviceId, transport);
+        this(new StandardTypeRegistry(), network, deviceId);
     }
 
     public BacNetIpClient(String ip, String broadcast, int port, int deviceId) {
@@ -151,7 +159,7 @@ public class BacNetIpClient implements BacNetClient {
     public List<Property> getDeviceProperties(Device device) {
         try {
             ReadPropertyAck ack = localDevice.send(device.getBacNet4jAddress(),
-                    new ReadPropertyRequest(device.getObjectIdentifier(), PropertyIdentifier.objectList)).get();
+                new ReadPropertyRequest(device.getObjectIdentifier(), PropertyIdentifier.objectList)).get();
             SequenceOf<ObjectIdentifier> value = ack.getValue();
 
             List<Property> properties = new ArrayList<>();
@@ -169,10 +177,14 @@ public class BacNetIpClient implements BacNetClient {
 
     @Override
     public <T> T getPropertyValue(Property property, BacNetToJavaConverter<T> converter) {
+        if (!(property instanceof HasPresentValue)) {
+            return null;
+        }
+
         try {
             ReadPropertyAck presentValue = localDevice.send(property.getDevice().getBacNet4jAddress(),
-                    new ReadPropertyRequest(new ObjectIdentifier(property.getType().getBacNetType(), property.getId()),
-                            PropertyIdentifier.presentValue)).get();
+                new ReadPropertyRequest(getBacnetIdentifier(property),
+                    PropertyIdentifier.presentValue)).get();
 
             return (T) getJavaValue(presentValue.getValue(), converter);
         } catch (BACnetException e) {
@@ -188,11 +200,11 @@ public class BacNetIpClient implements BacNetClient {
         List<ReadAccessSpecification> specifications = new ArrayList<>();
         for (int propertyIndex = 0; propertyIndex < properties.size(); propertyIndex++) {
             Property property = properties.get(propertyIndex);
-            specifications.add(new ReadAccessSpecification(new ObjectIdentifier(property.getType().getBacNetType(), property.getId()), PropertyIdentifier.presentValue));
+            specifications.add(new ReadAccessSpecification(getBacnetIdentifier(property), PropertyIdentifier.presentValue));
 
             if (propertyIndex % 3 == 0 || propertyIndex + 1 == properties.size()) {
                 try {
-                    ReadPropertyMultipleAck readValues = localDevice.send(device.getBacNet4jAddress(), new ReadPropertyMultipleRequest(new SequenceOf<ReadAccessSpecification>(specifications))).get();
+                    ReadPropertyMultipleAck readValues = localDevice.send(device.getBacNet4jAddress(), new ReadPropertyMultipleRequest(new SequenceOf<>(specifications))).get();
                     specifications.clear();
                     SequenceOf<ReadAccessResult> listOfReadAccessResults = readValues.getListOfReadAccessResults();
                     for (int index = 0; index < listOfReadAccessResults.getCount(); index++) {
@@ -223,11 +235,17 @@ public class BacNetIpClient implements BacNetClient {
         return converter.toBacNet(object);
     }
 
+    private ObjectIdentifier getBacnetIdentifier(Property property) {
+        ObjectType objectType = ObjectType.forId(property.getType().getCode());
+        return new ObjectIdentifier(objectType, property.getId());
+    }
 
     @Override
     public <T> void setPropertyValue(Property property, T value, JavaToBacNetConverter<T> converter) {
         Encodable bacNetValue = getBacNetValue(value, converter);
-        ServiceFuture send = localDevice.send(property.getDevice().getBacNet4jAddress(), new WritePropertyRequest(property.getBacNet4jIdentifier(), PropertyIdentifier.presentValue, null, bacNetValue, null));
+        ObjectIdentifier objectIdentifier = getBacnetIdentifier(property);
+        ServiceFuture send = localDevice.send(property.getDevice().getBacNet4jAddress(), new WritePropertyRequest(objectIdentifier,
+            PropertyIdentifier.presentValue, null, bacNetValue, null));
         try {
             send.get();
         } catch (BACnetException e) {
@@ -239,31 +257,28 @@ public class BacNetIpClient implements BacNetClient {
     }
 
     private Property createProperty(Device device, ObjectIdentifier id) {
-        List<ReadAccessSpecification> specs = new ArrayList<ReadAccessSpecification>();
-        specs.add(new ReadAccessSpecification(id, PropertyIdentifier.presentValue));
+        List<ReadAccessSpecification> specs = new ArrayList<>();
         specs.add(new ReadAccessSpecification(id, PropertyIdentifier.units));
         specs.add(new ReadAccessSpecification(id, PropertyIdentifier.objectName));
         specs.add(new ReadAccessSpecification(id, PropertyIdentifier.description));
         try {
             ReadPropertyMultipleAck propertyDescriptorAck = localDevice.send(device.getBacNet4jAddress(),
-                    new ReadPropertyMultipleRequest(new SequenceOf<>(specs))).get();
+                new ReadPropertyMultipleRequest(new SequenceOf<>(specs))).get();
             SequenceOf<ReadAccessResult> readAccessResults = propertyDescriptorAck.getListOfReadAccessResults();
 
-            String name = getReadValue(readAccessResults.get(2));
-            String units = getReadValue(readAccessResults.get(1));
-            String description = getReadValue(readAccessResults.get(3));
-            // present value used for mapping
-            // TypeMapping type = getPropertyType(readAccessResults.get(1));
+            String units = getReadValue(readAccessResults.get(0));
+            String name = getReadValue(readAccessResults.get(1));
+            String description = getReadValue(readAccessResults.get(2));
 
-            return new Property(device, id.getInstanceNumber(), name, description, units,
-                    Type.valueOf(id.getObjectType()));
+            Optional<Type> propertyType = typeRegistry.lookup(id.getObjectType().intValue());
+            return propertyType.map(type -> type.create(device, id.getInstanceNumber(), name, description, units))
+                .orElse(null);
         } catch (BACnetException e) {
             throw new BacNetClientException("Unable to fetch property description", e);
         }
     }
 
     private String getReadValue(ReadAccessResult readAccessResult) {
-        // first index contains 0 value.. I know it is weird, but that's how bacnet4j works
         return readAccessResult.getListOfResults().get(0).getReadResult().toString();
     }
 

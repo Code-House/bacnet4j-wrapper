@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2016 Code-House and others.
+ * (C) Copyright 2017 Code-House and others.
  *
  * bacnet4j-wrapper is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,19 +19,21 @@
  */
 package org.code_house.bacnet4j.wrapper.api;
 
+import java.util.Optional;
+
 /**
- * Exception thrown by client in case of failures.
+ * Type mapping registry - takes bacnet code - gives type representation.
  *
  * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
  */
-public class BacNetClientException extends RuntimeException {
+public interface TypeRegistry {
 
-    public BacNetClientException(String message) {
-        super(message);
-    }
-
-    public BacNetClientException(String message, Throwable cause) {
-        super(message, cause);
-    }
+    /**
+     * Attemts to find property type based on its code.
+     *
+     * @param code Code of bacnet property type.
+     * @return Type of property or empty object.
+     */
+    Optional<Type> lookup(int code);
 
 }

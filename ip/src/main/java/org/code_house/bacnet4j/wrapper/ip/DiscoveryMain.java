@@ -24,6 +24,7 @@ import org.code_house.bacnet4j.wrapper.api.BacNetClientException;
 import org.code_house.bacnet4j.wrapper.api.BypassBacnetConverter;
 import org.code_house.bacnet4j.wrapper.api.Device;
 import org.code_house.bacnet4j.wrapper.api.Property;
+import org.code_house.bacnet4j.wrapper.api.property.SimpleProperty;
 
 import java.net.InetAddress;
 import java.net.InterfaceAddress;
@@ -112,7 +113,7 @@ public class DiscoveryMain {
                                 Encodable propertyValue = client.getPropertyValue(property, new BypassBacnetConverter());
                                 System.out.println(
                                     String.format("          => Type %s id: %d, present value '%s' type %s",
-                                        property.getType().name(),
+                                        property.getType(),
                                         property.getId(),
                                         propertyValue,
                                         propertyValue != null ? propertyValue.getClass().getName() : "<null>"
@@ -120,8 +121,8 @@ public class DiscoveryMain {
                                 );
                                 System.out.println("             Metadata");
                                 System.out.println("               Name: " + property.getName());
-                                System.out.println("               Units: " + property.getUnits());
-                                System.out.println("               Description: " + property.getDescription());
+                                //System.out.println("               Units: " + property.getUnits());
+                                //System.out.println("               Description: " + property.getDescription());
                             } catch (BacNetClientException e) {
                                 System.out.println("Could not read property " + property + " value");
                                 e.printStackTrace(System.out);
