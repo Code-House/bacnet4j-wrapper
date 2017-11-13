@@ -32,8 +32,9 @@ import java.util.Arrays;
  *
  * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
  */
-public class Device {
+public class Device implements BacNetElement {
 
+    private final BacNetClient client;
     private final int instanceNumber;
     private final byte[] address;
     private final int networkNumber;
@@ -43,18 +44,19 @@ public class Device {
     private String name = "";
 
 
-    public Device(int instanceNumber, byte[] address, int networkNumber) {
+    public Device(BacNetClient client, int instanceNumber, byte[] address, int networkNumber) {
+        this.client = client;
         this.instanceNumber = instanceNumber;
         this.address = address;
         this.networkNumber = networkNumber;
     }
 
-    public Device(int instanceNumber, Address address) {
-        this(instanceNumber, address.getMacAddress().getBytes(), address.getNetworkNumber().intValue());
+    public Device(BacNetClient client, int instanceNumber, Address address) {
+        this(client, instanceNumber, address.getMacAddress().getBytes(), address.getNetworkNumber().intValue());
     }
 
-    public Device(int instanceNumber, String ip, int port, int networkNumber) {
-        this(instanceNumber, IpNetworkUtils.toAddress(networkNumber, ip, port));
+    public Device(BacNetClient client, int instanceNumber, String ip, int port, int networkNumber) {
+        this(client, instanceNumber, IpNetworkUtils.toAddress(networkNumber, ip, port));
     }
 
     public ObjectIdentifier getObjectIdentifier() {
@@ -107,6 +109,16 @@ public class Device {
 
     public int getPort() {
         return IpNetworkUtils.getPort(new OctetString(address));
+    }
+
+    @Override
+    public Object get(Property property) {
+        return client.getPropertyValue(property, new BypassBacnetConverter());
+    }
+
+    @Override
+    public <T> T get(Property property, BacNetToJavaConverter<T> converter) {
+        return client.getPropertyValue(property, converter);
     }
 
     @Override

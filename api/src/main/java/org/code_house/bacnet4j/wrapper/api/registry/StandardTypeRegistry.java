@@ -19,6 +19,7 @@
  */
 package org.code_house.bacnet4j.wrapper.api.registry;
 
+import org.code_house.bacnet4j.wrapper.api.type.ScheduleType;
 import org.code_house.bacnet4j.wrapper.api.type.SimpleType;
 
 /**
@@ -49,7 +50,7 @@ public class StandardTypeRegistry extends SimpleTypeRegistry {
 
         register(new SimpleType(15, "Notification Class"));
 
-        register(new SimpleType(17, "Schedule"));
+        register(new ScheduleType());
 
         register(new SimpleType(20, "Trend Log"));
 

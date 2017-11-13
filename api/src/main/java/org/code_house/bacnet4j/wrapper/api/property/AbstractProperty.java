@@ -20,6 +20,7 @@
 package org.code_house.bacnet4j.wrapper.api.property;
 
 import org.code_house.bacnet4j.wrapper.api.Device;
+import org.code_house.bacnet4j.wrapper.api.Property;
 import org.code_house.bacnet4j.wrapper.api.Type;
 
 /**
@@ -27,21 +28,49 @@ import org.code_house.bacnet4j.wrapper.api.Type;
  *
  * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
  */
-public class SimpleProperty extends AbstractProperty {
+public abstract class AbstractProperty implements Property {
 
-    private final String units;
+    private final Device device;
+    private final int id;
+    private final Type type;
+    private final String name;
+    private final String description;
 
-    public SimpleProperty(Device device, Type type, int id) {
-        this(device, type, id, "", "", "");
+    public AbstractProperty(Device device, Type type, int id) {
+        this(device, type, id, "", "");
     }
 
-    public SimpleProperty(Device device, Type type, int id, String name, String description, String units) {
-        super(device, type, id, name, description);
-        this.units = units;
+    public AbstractProperty(Device device, Type type, int id, String name, String description) {
+        this.device = device;
+        this.id = id;
+        this.type = type;
+        this.name = name;
+        this.description = description;
     }
 
-    public String getUnits() {
-        return units;
+    public Device getDevice() {
+        return device;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + device.getInstanceNumber() + "." + type + "." + id + "]";
     }
 
 }

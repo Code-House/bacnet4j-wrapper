@@ -40,6 +40,7 @@ public class DiscoveryCallable extends DeviceEventAdapter implements Callable<Se
 
     private final Logger logger = LoggerFactory.getLogger(DiscoveryCallable.class);
 
+    private final BacNetClient client;
     private final DeviceDiscoveryListener listener;
     private final LocalDevice localDevice;
     private final long timeout;
@@ -47,7 +48,8 @@ public class DiscoveryCallable extends DeviceEventAdapter implements Callable<Se
     private final Set<Device> devices = new LinkedHashSet<>();
     private Throwable exception;
 
-    public DiscoveryCallable(DeviceDiscoveryListener listener, LocalDevice localDevice, long timeout, long sleep) {
+    public DiscoveryCallable(BacNetClient client, DeviceDiscoveryListener listener, LocalDevice localDevice, long timeout, long sleep) {
+        this.client = client;
         this.listener = listener;
         this.localDevice = localDevice;
         this.timeout = timeout;
@@ -75,7 +77,7 @@ public class DiscoveryCallable extends DeviceEventAdapter implements Callable<Se
         } catch (BACnetException e) {
             logger.error("Could not collect additional device information", e);
         }
-        Device device = new Device(d.getInstanceNumber(), d.getAddress());
+        Device device = new Device(client, d.getInstanceNumber(), d.getAddress());
         if (d.getModelName() != null && !d.getModelName().isEmpty()) {
             device.setModelName(d.getModelName());
         }

@@ -19,58 +19,27 @@
  */
 package org.code_house.bacnet4j.wrapper.api.type;
 
+import org.code_house.bacnet4j.wrapper.api.BacNetElement;
 import org.code_house.bacnet4j.wrapper.api.Device;
 import org.code_house.bacnet4j.wrapper.api.Property;
-import org.code_house.bacnet4j.wrapper.api.Type;
+import org.code_house.bacnet4j.wrapper.api.property.RawProperties;
 import org.code_house.bacnet4j.wrapper.api.property.SimpleProperty;
-
-import java.util.Objects;
 
 /**
  * Type representing scalar value.
  *
  * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
  */
-public class SimpleType implements Type {
-
-    private final int code;
-    private final String name;
+public class SimpleType<T extends Device> extends AbstractType<T> {
 
     public SimpleType(int code, String name) {
-        this.code = code;
-        this.name = name;
+        super(code, name);
     }
 
     @Override
-    public int getCode() {
-        return code;
+    public Property create(Device device, int instanceNumber, String name, String description) {
+        String units = (String) device.get(RawProperties.UNITS);
+        return new SimpleProperty(device, this, instanceNumber, name, description, units);
     }
 
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public Property create(Device device, int id, String name, String description, String units) {
-        return new SimpleProperty(device, this, id, name, description, units);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof SimpleType)) return false;
-        SimpleType that = (SimpleType) o;
-        return getCode() == that.getCode() &&
-            Objects.equals(getName(), that.getName());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getCode(), getName());
-    }
-
-    @Override
-    public String toString() {
-        return "SimpleType(" + getCode() + ":" + getName() + ")";
-    }
 }

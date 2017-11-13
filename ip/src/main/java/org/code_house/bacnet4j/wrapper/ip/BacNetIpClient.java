@@ -39,7 +39,6 @@ import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import org.code_house.bacnet4j.wrapper.api.*;
-import org.code_house.bacnet4j.wrapper.api.property.SimpleProperty;
 import org.code_house.bacnet4j.wrapper.api.registry.StandardTypeRegistry;
 import org.code_house.bacnet4j.wrapper.api.util.ForwardingAdapter;
 import org.slf4j.Logger;
@@ -115,7 +114,7 @@ public class BacNetIpClient implements BacNetClient {
 
     @Override
     public CompletableFuture<Set<Device>> doDiscoverDevices(final DeviceDiscoveryListener discoveryListener, final long timeout) {
-        DiscoveryCallable callable = new DiscoveryCallable(discoveryListener, localDevice, timeout, timeout / 10);
+        DiscoveryCallable callable = new DiscoveryCallable(this, discoveryListener, localDevice, timeout, timeout / 10);
         ForwardingAdapter listener = new ForwardingAdapter(executor, callable);
         localDevice.getEventHandler().addListener(listener);
         localDevice.sendGlobalBroadcast(new WhoIsRequest());
@@ -137,7 +136,7 @@ public class BacNetIpClient implements BacNetClient {
 
     @Override
     public Set<Device> discoverDevices(final DeviceDiscoveryListener discoveryListener, final long timeout) {
-        DiscoveryCallable callable = new DiscoveryCallable(discoveryListener, localDevice, timeout, timeout / 10);
+        DiscoveryCallable callable = new DiscoveryCallable(this, discoveryListener, localDevice, timeout, timeout / 10);
         ForwardingAdapter listener = new ForwardingAdapter(executor, callable);
         try {
             localDevice.getEventHandler().addListener(listener);
@@ -271,7 +270,7 @@ public class BacNetIpClient implements BacNetClient {
             String description = getReadValue(readAccessResults.get(2));
 
             Optional<Type> propertyType = typeRegistry.lookup(id.getObjectType().intValue());
-            return propertyType.map(type -> type.create(device, id.getInstanceNumber(), name, description, units))
+            return propertyType.map(type -> type.create(device, id.getInstanceNumber(), name, description))
                 .orElse(null);
         } catch (BACnetException e) {
             throw new BacNetClientException("Unable to fetch property description", e);
