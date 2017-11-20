@@ -36,11 +36,7 @@ public enum Type {
     BINARY_VALUE("binaryValue", ObjectType.binaryValue),
     MULTISTATE_INPUT("multiStateInput", ObjectType.multiStateInput),
     MULTISTATE_OUTPUT("multiStateOutput", ObjectType.multiStateOutput),
-    MULTISTATE_VALUE("multiStateValue", ObjectType.multiStateValue),
-    COMMAND("command", ObjectType.command),
-    CALENDAR("calendar", ObjectType.calendar),
-    SCHEDULE("schedule", ObjectType.schedule),
-    NOTIFICATION_CLASS("notificationClas", ObjectType.notificationClass);
+    MULTISTATE_VALUE("multiStateValue", ObjectType.multiStateValue);
 
     private final String name;
     private final ObjectType bacNetType;
@@ -69,7 +65,7 @@ public enum Type {
                 return type;
             }
         }
-        throw new IllegalArgumentException("Unsuported bacnet object type " + objectType);
+        throw new UnsupportedTypeException("Unsuported bacnet object type " + objectType);
     }
 
 }

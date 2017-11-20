@@ -160,7 +160,11 @@ public class BacNetIpClient implements BacNetClient {
                 if (ObjectType.device.equals(id.getObjectType())) {
                     continue;
                 }
-                properties.add(createProperty(device, id));
+                try {
+                    properties.add(createProperty(device, id));
+                } catch (UnsupportedTypeException e) {
+                    logger.warn("Discovered unsupported property, ignoring", e);
+                }
             }
             return properties;
         } catch (BACnetException e) {
@@ -247,7 +251,7 @@ public class BacNetIpClient implements BacNetClient {
         specs.add(new ReadAccessSpecification(id, PropertyIdentifier.description));
         try {
             ReadPropertyMultipleAck propertyDescriptorAck = localDevice.send(device.getBacNet4jAddress(),
-                    new ReadPropertyMultipleRequest(new SequenceOf<>(specs))).get();
+                new ReadPropertyMultipleRequest(new SequenceOf<>(specs))).get();
             SequenceOf<ReadAccessResult> readAccessResults = propertyDescriptorAck.getListOfReadAccessResults();
 
             String name = getReadValue(readAccessResults.get(3));
@@ -257,7 +261,7 @@ public class BacNetIpClient implements BacNetClient {
             // TypeMapping type = getPropertyType(readAccessResults.get(1));
 
             return new Property(device, id.getInstanceNumber(), name, description, units,
-                    Type.valueOf(id.getObjectType()));
+                Type.valueOf(id.getObjectType()));
         } catch (BACnetException e) {
             throw new BacNetClientException("Unable to fetch property description", e);
         }
