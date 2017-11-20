@@ -12,7 +12,7 @@
     <groupId>org.code-house.bacnet4j</groupId>
     <artifactId>bacnet4j-wrapper</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.1</version>
+    <version>1.0.2-SNAPSHOT</version>
 
     <name>Code-House :: Bacnet4J Wrapper</name>
     <description>
