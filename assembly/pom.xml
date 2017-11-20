@@ -47,6 +47,7 @@
                                     <mainClass>org.code_house.bacnet4j.wrapper.ip.DiscoveryMain</mainClass>
                                 </transformer>
                             </transformers>
+                            <createSourcesJar>true</createSourcesJar>
                         </configuration>
                     </execution>
                 </executions>
