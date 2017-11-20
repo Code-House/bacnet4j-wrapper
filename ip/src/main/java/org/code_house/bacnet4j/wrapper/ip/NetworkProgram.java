@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2016 Code-House and others.
+ * (C) Copyright 2017 Code-House and others.
  *
  * bacnet4j-wrapper is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Simple class to run discovery across all network interfaces, fetch discovered devices properties and it's values.
@@ -41,23 +42,41 @@ public class NetworkProgram {
         this.visitor = visitor;
     }
 
-    public void run(String[] args) throws Exception {
-        // For each interface ...
-        System.out.println("Fetching network interfaces");
-        List<String> interfaceIPs = new ArrayList<>();
-        for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
-            NetworkInterface networkInterface = en.nextElement();
-            if (!networkInterface.isLoopback()) {
+    public void run(String[] args) throws Exception {List<String> interfaceIPs = new ArrayList<>();
+        if (args.length > 0) {
+            String broadcasts = args[0].trim();
+            Arrays.stream(broadcasts.split(","))
+                .map(String::trim)
+                .forEach(interfaceIPs::add);
+        }
 
-                // .. and for each address ...
-                for (Iterator<InterfaceAddress> it = networkInterface.getInterfaceAddresses().iterator(); it.hasNext();) {
+        Long timeout = 30L;
+        if (args.length > 1) {
+            timeout = Long.parseLong(args[1]);
+        }
 
-                    // ... get IP and Subnet
-                    InterfaceAddress interfaceAddress = it.next();
+        int deviceId = 1339;
+        if (args.length > 2) {
+            deviceId = Integer.parseInt(args[2]);
+        }
 
-                    InetAddress broadcast = interfaceAddress.getBroadcast();
-                    if (broadcast != null) {
-                        interfaceIPs.add(broadcast.getHostAddress());
+        if (interfaceIPs.isEmpty()) {
+            // For each interface ...
+            System.out.println("Fetching network interfaces");
+            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
+                NetworkInterface networkInterface = en.nextElement();
+                if (!networkInterface.isLoopback()) {
+
+                    // .. and for each address ...
+                    for (Iterator<InterfaceAddress> it = networkInterface.getInterfaceAddresses().iterator(); it.hasNext(); ) {
+
+                        // ... get IP and Subnet
+                        InterfaceAddress interfaceAddress = it.next();
+
+                        InetAddress broadcast = interfaceAddress.getBroadcast();
+                        if (broadcast != null) {
+                            interfaceIPs.add(broadcast.getHostAddress());
+                        }
                     }
                 }
             }
@@ -68,11 +87,12 @@ public class NetworkProgram {
         }
 
         for (String broadcast : interfaceIPs) {
-            System.out.println("Fetching devices for " + broadcast + " address with 30 second timeout");
-            BacNetIpClient client = new BacNetIpClient(broadcast, 1339);
+            System.out.println("Device id " + deviceId);
+            System.out.println("Fetching devices for " + broadcast + " address with " + timeout + " second timeout");
+            BacNetIpClient client = new BacNetIpClient(broadcast, deviceId);
             client.start();
 
-            Set<Device> devices = client.discoverDevices(30000L);
+            Set<Device> devices = client.discoverDevices(TimeUnit.SECONDS.toMillis(timeout));
             if (devices.isEmpty()) {
                 System.out.println(" => No Devices found");
             } else {

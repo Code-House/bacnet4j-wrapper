@@ -28,24 +28,30 @@ import com.serotonin.bacnet4j.type.enumerated.ObjectType;
  */
 public enum Type {
 
-    ANALOG_INPUT(ObjectType.analogInput),
-    ANALOG_OUTPUT(ObjectType.analogOutput),
-    ANALOG_VALUE(ObjectType.analogValue),
-    BINARY_INPUT(ObjectType.binaryInput),
-    BINARY_OUTPUT(ObjectType.binaryOutput),
-    BINARY_VALUE(ObjectType.binaryValue),
-    MULTISTATE_INPUT(ObjectType.multiStateInput),
-    MULTISTATE_OUTPUT(ObjectType.multiStateOutput),
-    MULTISTATE_VALUE(ObjectType.multiStateValue),
-    COMMAND(ObjectType.command),
-    CALENDAR(ObjectType.calendar),
-    SCHEDULE(ObjectType.schedule),
-    NOTIFICATION_CLASS(ObjectType.notificationClass);
+    ANALOG_INPUT("analogInput", ObjectType.analogInput),
+    ANALOG_OUTPUT("analogOutput", ObjectType.analogOutput),
+    ANALOG_VALUE("analogValue", ObjectType.analogValue),
+    BINARY_INPUT("binaryInput", ObjectType.binaryInput),
+    BINARY_OUTPUT("binaryOutput", ObjectType.binaryOutput),
+    BINARY_VALUE("binaryValue", ObjectType.binaryValue),
+    MULTISTATE_INPUT("multiStateInput", ObjectType.multiStateInput),
+    MULTISTATE_OUTPUT("multiStateOutput", ObjectType.multiStateOutput),
+    MULTISTATE_VALUE("multiStateValue", ObjectType.multiStateValue),
+    COMMAND("command", ObjectType.command),
+    CALENDAR("calendar", ObjectType.calendar),
+    SCHEDULE("schedule", ObjectType.schedule),
+    NOTIFICATION_CLASS("notificationClas", ObjectType.notificationClass);
 
-    private ObjectType bacNetType;
+    private final String name;
+    private final ObjectType bacNetType;
 
-    Type(ObjectType bacNetType) {
+    Type(String name, ObjectType bacNetType) {
+        this.name = name;
         this.bacNetType = bacNetType;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public ObjectType getBacNetType() {
