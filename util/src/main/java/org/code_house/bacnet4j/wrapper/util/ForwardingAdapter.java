@@ -17,7 +17,7 @@
  * along with Foobar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.code_house.bacnet4j.wrapper.api.util;
+package org.code_house.bacnet4j.wrapper.util;
 
 import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.RemoteObject;
@@ -25,7 +25,6 @@ import com.serotonin.bacnet4j.event.DeviceEventAdapter;
 import com.serotonin.bacnet4j.event.DeviceEventListener;
 import com.serotonin.bacnet4j.obj.BACnetObject;
 import com.serotonin.bacnet4j.service.Service;
-import com.serotonin.bacnet4j.service.confirmed.ReinitializeDeviceRequest;
 import com.serotonin.bacnet4j.type.constructed.*;
 import com.serotonin.bacnet4j.type.enumerated.EventState;
 import com.serotonin.bacnet4j.type.enumerated.EventType;

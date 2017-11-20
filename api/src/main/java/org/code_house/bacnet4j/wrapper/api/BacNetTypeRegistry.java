@@ -22,18 +22,34 @@ package org.code_house.bacnet4j.wrapper.api;
 import java.util.Optional;
 
 /**
- * Type mapping registry - takes bacnet code - gives type representation.
+ * PropertyType mapping registry - takes bacnet code - gives type representation.
  *
  * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
  */
-public interface TypeRegistry {
+public interface BacNetTypeRegistry {
 
     /**
-     * Attemts to find property type based on its code.
+     * Attempts to find property type based on its code.
      *
      * @param code Code of bacnet property type.
-     * @return Type of property or empty object.
+     * @return PropertyType of property or empty object.
      */
-    Optional<Type> lookup(int code);
+    Optional<BacNetType> lookup(int code);
+
+    /**
+     * Attempts to find property type based on it's type class.
+     *
+     * @param type Type representing bacnet type.
+     * @return PropertyType of property or empty object.
+     */
+    <P extends BacNetElement, T, X extends BacNetType<P, T>> Optional<X> lookup(Class<X> type);
+
+    /**
+     * Confirms if given type instance is supported.
+     *
+     * @param type Type of bacnet property.
+     * @return PropertyType of property or empty object.
+     */
+    <P extends BacNetElement, T, X extends BacNetType<P, T>> Optional<X> lookup(X type);
 
 }

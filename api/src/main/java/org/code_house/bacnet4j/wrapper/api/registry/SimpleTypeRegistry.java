@@ -19,9 +19,7 @@
  */
 package org.code_house.bacnet4j.wrapper.api.registry;
 
-import org.code_house.bacnet4j.wrapper.api.BacNetClientException;
-import org.code_house.bacnet4j.wrapper.api.Type;
-import org.code_house.bacnet4j.wrapper.api.TypeRegistry;
+import org.code_house.bacnet4j.wrapper.api.*;
 
 import java.util.Map;
 import java.util.Optional;
@@ -32,16 +30,34 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
  */
-class SimpleTypeRegistry implements TypeRegistry {
+class SimpleTypeRegistry implements BacNetTypeRegistry {
 
-    private Map<Integer, Type> types = new ConcurrentHashMap<>();
+    private Map<Integer, BacNetType> types = new ConcurrentHashMap<>();
 
     @Override
-    public Optional<Type> lookup(int code) {
+    public Optional<BacNetType> lookup(int code) {
         return Optional.ofNullable(types.get(code));
     }
 
-    void register(Type type) {
+    @Override
+    public <P extends BacNetElement, T, X extends BacNetType<P, T>> Optional<X> lookup(Class<X> type) {
+        for (BacNetType registeredType : types.values()) {
+            if (registeredType.getClass() == type) {
+                return Optional.of((X) registeredType);
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public <P extends BacNetElement, T, X extends BacNetType<P, T>> Optional<X> lookup(X type) {
+        if (types.containsValue(type)) {
+            return Optional.of(type);
+        }
+        return Optional.empty();
+    }
+
+    void register(BacNetType type) {
         if (types.containsKey(type.getCode())) {
             throw new BacNetClientException("Code " + type.getCode() + " already reserved by " + types.get(type.getCode()));
         }

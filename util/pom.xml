@@ -9,26 +9,27 @@
         <version>1.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>api</artifactId>
+    <artifactId>util</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Code-House :: Bacnet4J Wrapper :: API</name>
-    <description>General definition of software interface/API.</description>
+    <name>Code-House :: Bacnet4J Wrapper :: Util</name>
+    <description>Utilities around bacnet4j.</description>
 
     <properties>
         <osgi.import>*</osgi.import>
         <osgi.export>
-            org.code_house.bacnet4j.wrapper.api.*,
-            com.serotonin.bacnet4j.*
+            org.code_house.bacnet4j.wrapper.util
         </osgi.export>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.12</version>
+            <groupId>org.code-house.bacnet4j</groupId>
+            <artifactId>api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.serotonin</groupId>
+            <artifactId>bacnet4j</artifactId>
         </dependency>
     </dependencies>
-
 </project>

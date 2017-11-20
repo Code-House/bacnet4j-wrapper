@@ -1,11 +1,6 @@
 package org.code_house.bacnet4j.wrapper.api;
 
-/**
- * Information about bacnet types.
- *
- * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
- */
-public interface Type<T extends BacNetElement> {
+public interface BacNetType<P extends BacNetElement, T> {
 
     /**
      * Bacnet code for given type.
@@ -17,18 +12,19 @@ public interface Type<T extends BacNetElement> {
     /**
      * Bacnet type name.
      *
-     * @return Type name.
+     * @return PropertyType name.
      */
     String getName();
 
     /**
      * Factory method for creating properties.
      *
-     * @param element
+     * @param parent
      * @param instanceNumber
-     * @param name
-     * @param description
      * @return
      */
-    Property create(T element, int instanceNumber, String name, String description);
+    T create(P parent, int instanceNumber);
+
+    T create(P parent, int instanceNumber, Context context);
+
 }

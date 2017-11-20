@@ -1,14 +1,13 @@
 package org.code_house.bacnet4j.wrapper.api.type;
 
-import org.code_house.bacnet4j.wrapper.api.BacNetElement;
-import org.code_house.bacnet4j.wrapper.api.Type;
+import org.code_house.bacnet4j.wrapper.api.*;
 
 import java.util.Objects;
 
 /**
  * @author dl02
  */
-public abstract class AbstractType<T extends BacNetElement> implements Type<T> {
+public abstract class AbstractType<P extends BacNetElement, T> implements BacNetType<P, T> {
     protected final int code;
     protected final String name;
 
@@ -33,6 +32,11 @@ public abstract class AbstractType<T extends BacNetElement> implements Type<T> {
         SimpleType that = (SimpleType) o;
         return getCode() == that.getCode() &&
             Objects.equals(getName(), that.getName());
+    }
+
+    @Override
+    public T create(P parent, int instanceNumber) {
+        return create(parent, instanceNumber, new EmptyContext());
     }
 
     @Override

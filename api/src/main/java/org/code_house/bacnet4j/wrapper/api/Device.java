@@ -19,60 +19,43 @@
  */
 package org.code_house.bacnet4j.wrapper.api;
 
-import com.serotonin.bacnet4j.npdu.ip.IpNetworkUtils;
-import com.serotonin.bacnet4j.type.constructed.Address;
-import com.serotonin.bacnet4j.type.enumerated.ObjectType;
-import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
-import com.serotonin.bacnet4j.type.primitive.OctetString;
+import org.code_house.bacnet4j.wrapper.api.primitives.BacNetObjectIdentifier;
+import org.code_house.bacnet4j.wrapper.api.type.DeviceType;
 
-import java.util.Arrays;
+import java.util.Map;
 
 /**
  * Representation of bacnet device.
  *
  * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
  */
-public class Device implements BacNetElement {
+public class Device implements BacNetElement<BacNetNetwork> {
 
-    private final BacNetClient client;
+    private final BacNetNetwork parent;
+    private final BacNetAddress address;
     private final int instanceNumber;
-    private final byte[] address;
-    private final int networkNumber;
 
     private String modelName = "";
     private String vendorName = "";
     private String name = "";
 
 
-    public Device(BacNetClient client, int instanceNumber, byte[] address, int networkNumber) {
-        this.client = client;
+    public Device(BacNetNetwork parent, int instanceNumber, BacNetAddress address) {
+        this.parent = parent;
         this.instanceNumber = instanceNumber;
         this.address = address;
-        this.networkNumber = networkNumber;
     }
 
-    public Device(BacNetClient client, int instanceNumber, Address address) {
-        this(client, instanceNumber, address.getMacAddress().getBytes(), address.getNetworkNumber().intValue());
-    }
-
-    public Device(BacNetClient client, int instanceNumber, String ip, int port, int networkNumber) {
-        this(client, instanceNumber, IpNetworkUtils.toAddress(networkNumber, ip, port));
-    }
-
-    public ObjectIdentifier getObjectIdentifier() {
-        return new ObjectIdentifier(ObjectType.device, instanceNumber);
+    public BacNetObjectIdentifier getObjectIdentifier() {
+        return new BacNetObjectIdentifier(DeviceType.IDENTIFIER, instanceNumber);
     }
 
     public int getInstanceNumber() {
         return instanceNumber;
     }
 
-    public byte[] getAddress() {
+    public BacNetAddress getAddress() {
         return address;
-    }
-
-    public int getNetworkNumber() {
-        return networkNumber;
     }
 
     public void setModelName(String modelName) {
@@ -99,30 +82,34 @@ public class Device implements BacNetElement {
         return name;
     }
 
-    public Address getBacNet4jAddress() {
-        return new Address(networkNumber, address);
-    }
-
-    public String getHostAddress() {
-        return IpNetworkUtils.getInetAddress(new OctetString(address)).getHostAddress();
-    }
-
-    public int getPort() {
-        return IpNetworkUtils.getPort(new OctetString(address));
+    @Override
+    public <X> BacNetValue<X> get(Property property) {
+        return null;
     }
 
     @Override
-    public Object get(Property property) {
-        return client.getPropertyValue(property, new BypassBacnetConverter());
+    public Map<Property, BacNetValue> get(Property... properties) {
+        return null;
     }
 
     @Override
-    public <T> T get(Property property, BacNetToJavaConverter<T> converter) {
-        return client.getPropertyValue(property, converter);
+    public Map<PropertyType, BacNetValue> get(PropertyType... properties) {
+        return null;
+    }
+
+    @Override
+    public BacNetNetwork getParent() {
+        return null;
+    }
+
+    @Override
+    public BacNetContext getContext() {
+        return null;
     }
 
     @Override
     public String toString() {
-        return "Device [" + instanceNumber + " " + IpNetworkUtils.toString(new OctetString(address)) + " network " + networkNumber + "]";
+        return "Device [" + instanceNumber + " " + address + "]";
     }
+
 }

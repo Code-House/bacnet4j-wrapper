@@ -19,11 +19,12 @@
  */
 package org.code_house.bacnet4j.wrapper.api.registry;
 
+import org.code_house.bacnet4j.wrapper.api.type.DeviceType;
 import org.code_house.bacnet4j.wrapper.api.type.ScheduleType;
 import org.code_house.bacnet4j.wrapper.api.type.SimpleType;
 
 /**
- * Type registry covering some of standard bacnet property types.
+ * PropertyType registry covering some of standard bacnet property types.
  *
  * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
  */
@@ -40,7 +41,7 @@ public class StandardTypeRegistry extends SimpleTypeRegistry {
 
         register(new SimpleType(6, "Calendar"));
         register(new SimpleType(7, "Command"));
-        register(new SimpleType(8, "Device"));
+        register(DeviceType.INSTANCE);
 
         register(new SimpleType(10, "File"));
 
@@ -50,7 +51,7 @@ public class StandardTypeRegistry extends SimpleTypeRegistry {
 
         register(new SimpleType(15, "Notification Class"));
 
-        register(new ScheduleType());
+        register(ScheduleType.INSTANCE);
 
         register(new SimpleType(20, "Trend Log"));
 

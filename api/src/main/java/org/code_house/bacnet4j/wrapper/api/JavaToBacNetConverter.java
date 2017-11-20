@@ -15,13 +15,11 @@
  */
 package org.code_house.bacnet4j.wrapper.api;
 
-import com.serotonin.bacnet4j.type.Encodable;
-
 /**
  * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
  */
 public interface JavaToBacNetConverter<T> {
 
-    Encodable toBacNet(T object);
+    BacNetValue toBacNet(T object);
 
 }

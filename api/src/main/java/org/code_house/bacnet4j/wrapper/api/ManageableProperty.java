@@ -24,5 +24,5 @@ package org.code_house.bacnet4j.wrapper.api;
  *
  * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
  */
-public interface HasPresentValue extends Property {
+public interface ManageableProperty extends Property {
 }

@@ -20,10 +20,12 @@
 package org.code_house.bacnet4j.wrapper.ip;
 
 import com.serotonin.bacnet4j.LocalDevice;
+import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.ServiceFuture;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.npdu.ip.IpNetwork;
 import com.serotonin.bacnet4j.npdu.ip.IpNetworkBuilder;
+import com.serotonin.bacnet4j.npdu.ip.IpNetworkUtils;
 import com.serotonin.bacnet4j.service.acknowledgement.ReadPropertyAck;
 import com.serotonin.bacnet4j.service.acknowledgement.ReadPropertyMultipleAck;
 import com.serotonin.bacnet4j.service.confirmed.ReadPropertyMultipleRequest;
@@ -32,23 +34,24 @@ import com.serotonin.bacnet4j.service.confirmed.WritePropertyRequest;
 import com.serotonin.bacnet4j.service.unconfirmed.WhoIsRequest;
 import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.Encodable;
+import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.ReadAccessResult;
 import com.serotonin.bacnet4j.type.constructed.ReadAccessSpecification;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
+import com.serotonin.bacnet4j.type.primitive.Null;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import org.code_house.bacnet4j.wrapper.api.*;
+import org.code_house.bacnet4j.wrapper.api.primitives.BacNetNull;
+import org.code_house.bacnet4j.wrapper.api.primitives.BacNetObjectIdentifier;
 import org.code_house.bacnet4j.wrapper.api.registry.StandardTypeRegistry;
-import org.code_house.bacnet4j.wrapper.api.util.ForwardingAdapter;
+import org.code_house.bacnet4j.wrapper.util.DiscoveryCallable;
+import org.code_house.bacnet4j.wrapper.util.ForwardingAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -57,14 +60,15 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
  */
-public class BacNetIpClient implements BacNetClient {
+public class BacNetIpClient implements BacNetClient, BacNetNetwork, BacNetContext {
 
     private final static AtomicInteger instances = new AtomicInteger();
 
     private final Logger logger = LoggerFactory.getLogger(BacNetIpClient.class);
 
+    private Map<Integer, Address> deviceMap = new ConcurrentHashMap<>();
     private final LocalDevice localDevice;
-    private final TypeRegistry typeRegistry;
+    private final BacNetTypeRegistry typeRegistry;
 
     private ExecutorService executor = Executors.newFixedThreadPool(2, r -> {
         Thread thread = new Thread(r, "bacnet-client-" + instances.incrementAndGet() + "-discovery");
@@ -72,7 +76,7 @@ public class BacNetIpClient implements BacNetClient {
         return thread;
     });
 
-    public BacNetIpClient(TypeRegistry typeRegistry, IpNetwork network, int deviceId) {
+    public BacNetIpClient(BacNetTypeRegistry typeRegistry, IpNetwork network, int deviceId) {
         this.localDevice = new LocalDevice(deviceId, new DefaultTransport(network));
         this.typeRegistry = typeRegistry;
     }
@@ -114,7 +118,7 @@ public class BacNetIpClient implements BacNetClient {
 
     @Override
     public CompletableFuture<Set<Device>> doDiscoverDevices(final DeviceDiscoveryListener discoveryListener, final long timeout) {
-        DiscoveryCallable callable = new DiscoveryCallable(this, discoveryListener, localDevice, timeout, timeout / 10);
+        DiscoveryCallable callable = new DiscoveryCallable(this, this::registerDevice, discoveryListener, localDevice, timeout, timeout / 10);
         ForwardingAdapter listener = new ForwardingAdapter(executor, callable);
         localDevice.getEventHandler().addListener(listener);
         localDevice.sendGlobalBroadcast(new WhoIsRequest());
@@ -136,7 +140,7 @@ public class BacNetIpClient implements BacNetClient {
 
     @Override
     public Set<Device> discoverDevices(final DeviceDiscoveryListener discoveryListener, final long timeout) {
-        DiscoveryCallable callable = new DiscoveryCallable(this, discoveryListener, localDevice, timeout, timeout / 10);
+        DiscoveryCallable callable = new DiscoveryCallable(this, this::registerDevice, discoveryListener, localDevice, timeout, timeout / 10);
         ForwardingAdapter listener = new ForwardingAdapter(executor, callable);
         try {
             localDevice.getEventHandler().addListener(listener);
@@ -154,11 +158,15 @@ public class BacNetIpClient implements BacNetClient {
         return Collections.emptySet();
     }
 
+    private void registerDevice(RemoteDevice remoteDevice) {
+        this.deviceMap.put(remoteDevice.getInstanceNumber(), remoteDevice.getAddress());
+    }
+
     @Override
     public List<Property> getDeviceProperties(Device device) {
         try {
-            ReadPropertyAck ack = localDevice.send(device.getBacNet4jAddress(),
-                new ReadPropertyRequest(device.getObjectIdentifier(), PropertyIdentifier.objectList)).get();
+            ReadPropertyAck ack = localDevice.send(address(device),
+                new ReadPropertyRequest(identifier(device.getObjectIdentifier()), PropertyIdentifier.objectList)).get();
             SequenceOf<ObjectIdentifier> value = ack.getValue();
 
             List<Property> properties = new ArrayList<>();
@@ -174,18 +182,22 @@ public class BacNetIpClient implements BacNetClient {
         }
     }
 
+    private ObjectIdentifier identifier(BacNetObjectIdentifier objectIdentifier) {
+        return new ObjectIdentifier(objectIdentifier.getType(), objectIdentifier.getInstance());
+    }
+
     @Override
-    public <T> T getPropertyValue(Property property, BacNetToJavaConverter<T> converter) {
-        if (!(property instanceof HasPresentValue)) {
-            return null;
+    public <T> BacNetValue<T> getPropertyValue(Property property) {
+        if (!(property instanceof ManageableProperty)) {
+            return null; // BacNetNull
         }
 
         try {
-            ReadPropertyAck presentValue = localDevice.send(property.getDevice().getBacNet4jAddress(),
+            ReadPropertyAck presentValue = localDevice.send(address(property.getParent()),
                 new ReadPropertyRequest(getBacnetIdentifier(property),
                     PropertyIdentifier.presentValue)).get();
 
-            return (T) getJavaValue(presentValue.getValue(), converter);
+            return getJavaValue(presentValue.getValue());
         } catch (BACnetException e) {
             throw new BacNetClientException("Could not get property value", e);
         }
@@ -193,8 +205,9 @@ public class BacNetIpClient implements BacNetClient {
 
     @Override
     public List<Object> getPropertyValues(List<Property> properties) {
-        BypassBacnetConverter converter = new BypassBacnetConverter();
-        Device device = properties.get(0).getDevice();
+        BacNetElement device = properties.get(0).getParent();
+
+
         List<Object> values = new ArrayList<>();
         List<ReadAccessSpecification> specifications = new ArrayList<>();
         for (int propertyIndex = 0; propertyIndex < properties.size(); propertyIndex++) {
@@ -203,13 +216,13 @@ public class BacNetIpClient implements BacNetClient {
 
             if (propertyIndex % 3 == 0 || propertyIndex + 1 == properties.size()) {
                 try {
-                    ReadPropertyMultipleAck readValues = localDevice.send(device.getBacNet4jAddress(), new ReadPropertyMultipleRequest(new SequenceOf<>(specifications))).get();
+                    ReadPropertyMultipleAck readValues = localDevice.send(address(device), new ReadPropertyMultipleRequest(new SequenceOf<>(specifications))).get();
                     specifications.clear();
                     SequenceOf<ReadAccessResult> listOfReadAccessResults = readValues.getListOfReadAccessResults();
                     for (int index = 0; index < listOfReadAccessResults.getCount(); index++) {
                         ReadAccessResult result = listOfReadAccessResults.get(index + 1);
                         logger.info("Reading property {} value from {}", properties.get(propertyIndex), result.getListOfResults());
-                        values.add(getJavaValue(result.getListOfResults().get(1).getReadResult().getDatum(), converter));
+                        values.add(getJavaValue(result.getListOfResults().get(1).getReadResult().getDatum()));
                     }
                 } catch (BACnetException e) {
                     throw new BacNetClientException("Unable to read properties.", e);
@@ -220,18 +233,35 @@ public class BacNetIpClient implements BacNetClient {
         return values;
     }
 
-    private <T> T getJavaValue(Encodable datum, BacNetToJavaConverter<T> converter) {
-        if (converter == null) {
-            return null;
+    private Address address(BacNetElement device) {
+        if (device instanceof Device) {
+            int id = ((Device) device).getInstanceNumber();
+            if (deviceMap.containsKey(id)) {
+                return deviceMap.get(id);
+            } else {
+                throw new IllegalArgumentException("Device id " + id + " is not known yet");
+            }
         }
-        return converter.fromBacNet(datum);
+
+        throw new IllegalArgumentException(device + " is not device");
     }
 
-    private <T> Encodable getBacNetValue(T object, JavaToBacNetConverter<T> converter) {
-        if (converter == null) {
-            return null;
+    private <T> BacNetValue<T> getJavaValue(Encodable datum) {
+        if (datum == null || datum instanceof Null) {
+            return null; //BacNetNull.instance;
         }
-        return converter.toBacNet(object);
+
+        throw new AbstractMethodError("Operation not supported yet.");
+        //return converter.fromBacNet(null /*datum*/);
+    }
+
+    private <T> Encodable getBacNetValue(BacNetValue<T> value) {
+        if (value == null || value instanceof BacNetNull) {
+            return Null.instance;
+        }
+
+        throw new AbstractMethodError("Operation not supported yet.");
+        //return converter.toBacNet(object);
     }
 
     private ObjectIdentifier getBacnetIdentifier(Property property) {
@@ -240,10 +270,10 @@ public class BacNetIpClient implements BacNetClient {
     }
 
     @Override
-    public <T> void setPropertyValue(Property property, T value, JavaToBacNetConverter<T> converter) {
-        Encodable bacNetValue = getBacNetValue(value, converter);
+    public <T> void setPropertyValue(Property property, BacNetValue<T> value) {
+        Encodable bacNetValue = getBacNetValue(value);
         ObjectIdentifier objectIdentifier = getBacnetIdentifier(property);
-        ServiceFuture send = localDevice.send(property.getDevice().getBacNet4jAddress(), new WritePropertyRequest(objectIdentifier,
+        ServiceFuture send = localDevice.send(address(property.getParent()), new WritePropertyRequest(objectIdentifier,
             PropertyIdentifier.presentValue, null, bacNetValue, null));
         try {
             send.get();
@@ -256,29 +286,71 @@ public class BacNetIpClient implements BacNetClient {
     }
 
     private Property createProperty(Device device, ObjectIdentifier id) {
+        /*
         List<ReadAccessSpecification> specs = new ArrayList<>();
         specs.add(new ReadAccessSpecification(id, PropertyIdentifier.units));
         specs.add(new ReadAccessSpecification(id, PropertyIdentifier.objectName));
         specs.add(new ReadAccessSpecification(id, PropertyIdentifier.description));
-        try {
-            ReadPropertyMultipleAck propertyDescriptorAck = localDevice.send(device.getBacNet4jAddress(),
+        */
+
+        //try {
+            /*
+            ReadPropertyMultipleAck propertyDescriptorAck = localDevice.send(address(device),
                 new ReadPropertyMultipleRequest(new SequenceOf<>(specs))).get();
             SequenceOf<ReadAccessResult> readAccessResults = propertyDescriptorAck.getListOfReadAccessResults();
 
-            String units = getReadValue(readAccessResults.get(0));
             String name = getReadValue(readAccessResults.get(1));
             String description = getReadValue(readAccessResults.get(2));
+            String units = getReadValue(readAccessResults.get(0));
+            */
 
-            Optional<Type> propertyType = typeRegistry.lookup(id.getObjectType().intValue());
-            return propertyType.map(type -> type.create(device, id.getInstanceNumber(), name, description))
+            Optional<PropertyType<Device, Property<Device>>> propertyType = typeRegistry.lookup(id.getObjectType().intValue())
+                .filter(type -> type instanceof PropertyType)
+                .map(type -> ((PropertyType<Device, Property<Device>>) type));
+
+            return propertyType.map(type -> type.create(device, id.getInstanceNumber()/*, name, description*/))
                 .orElse(null);
-        } catch (BACnetException e) {
-            throw new BacNetClientException("Unable to fetch property description", e);
-        }
+        //} catch (BACnetException e) {
+        //    throw new BacNetClientException("Unable to fetch property description", e);
+        //}
     }
 
     private String getReadValue(ReadAccessResult readAccessResult) {
         return readAccessResult.getListOfResults().get(0).getReadResult().toString();
     }
 
+
+    @Override
+    public BacNetTypeRegistry getTypeRegistry() {
+        return typeRegistry;
+    }
+
+    @Override
+    public <X> BacNetValue<X> get(Property property) {
+        return getPropertyValue(property);
+    }
+
+    @Override
+    public Map<Property, BacNetValue> get(Property... properties) {
+        Map<Property, BacNetValue> values = new LinkedHashMap<>();
+        for (Property property : properties) {
+            values.put(property, get(property));
+        }
+        return values;
+    }
+
+    @Override
+    public Map<PropertyType, BacNetValue> get(PropertyType... properties) {
+        return null;
+    }
+
+    @Override
+    public BacNetRoot getParent() {
+        return null;
+    }
+
+    @Override
+    public BacNetContext getContext() {
+        return this;
+    }
 }

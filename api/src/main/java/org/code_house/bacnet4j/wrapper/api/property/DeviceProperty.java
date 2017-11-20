@@ -4,21 +4,15 @@ import org.code_house.bacnet4j.wrapper.api.BacNetElement;
 import org.code_house.bacnet4j.wrapper.api.Property;
 import org.code_house.bacnet4j.wrapper.api.PropertyType;
 
-/**
- * @author dl02
- */
-//public class RawProperty implements Property {
+//public class DeviceProperty<T> implements Property {
 //
-//    private final int code;
-//    private PropertyType type;
+//    public DeviceProperty(int deviceId, short propertyId) {
 //
-//    public RawProperty(int code) {
-//        this.code = code;
 //    }
 //
 //    @Override
 //    public int getId() {
-//        return code;
+//        return 0;
 //    }
 //
 //    @Override
@@ -33,6 +27,7 @@ import org.code_house.bacnet4j.wrapper.api.PropertyType;
 //
 //    @Override
 //    public PropertyType getType() {
-//        return type;
+//        return null;
 //    }
+//
 //}

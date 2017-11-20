@@ -17,19 +17,21 @@
  * along with Foobar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.code_house.bacnet4j.wrapper.api;
+package org.code_house.bacnet4j.wrapper.util;
 
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.event.DeviceEventAdapter;
-import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.util.DiscoveryUtils;
+import org.code_house.bacnet4j.wrapper.api.*;
+import org.code_house.bacnet4j.wrapper.api.type.DeviceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.function.Consumer;
 
 /**
  * Callable responsible for calling collecting discovered devices and also sending discovery notifications.
@@ -40,7 +42,8 @@ public class DiscoveryCallable extends DeviceEventAdapter implements Callable<Se
 
     private final Logger logger = LoggerFactory.getLogger(DiscoveryCallable.class);
 
-    private final BacNetClient client;
+    private final BacNetNetwork client;
+    private final Consumer<RemoteDevice> callback;
     private final DeviceDiscoveryListener listener;
     private final LocalDevice localDevice;
     private final long timeout;
@@ -48,8 +51,9 @@ public class DiscoveryCallable extends DeviceEventAdapter implements Callable<Se
     private final Set<Device> devices = new LinkedHashSet<>();
     private Throwable exception;
 
-    public DiscoveryCallable(BacNetClient client, DeviceDiscoveryListener listener, LocalDevice localDevice, long timeout, long sleep) {
+    public DiscoveryCallable(BacNetNetwork client, Consumer<RemoteDevice> callback, DeviceDiscoveryListener listener, LocalDevice localDevice, long timeout, long sleep) {
         this.client = client;
+        this.callback = callback;
         this.listener = listener;
         this.localDevice = localDevice;
         this.timeout = timeout;
@@ -72,27 +76,25 @@ public class DiscoveryCallable extends DeviceEventAdapter implements Callable<Se
 
     @Override
     public void iAmReceived(RemoteDevice d) {
-        try {
-            DiscoveryUtils.getExtendedDeviceInformation(localDevice, d);
-        } catch (BACnetException e) {
-            logger.error("Could not collect additional device information", e);
-        }
-        Device device = new Device(client, d.getInstanceNumber(), d.getAddress());
-        if (d.getModelName() != null && !d.getModelName().isEmpty()) {
-            device.setModelName(d.getModelName());
-        }
-        if (d.getVendorName() != null && !d.getVendorName().isEmpty()) {
-            device.setVendorName(d.getVendorName());
-        }
-        if (d.getName() != null && !d.getName().isEmpty()) {
-            device.setName(d.getModelName());
-        }
-        devices.add(device);
-        this.listener.deviceDiscovered(device);
+//        try {
+//            DiscoveryUtils.getExtendedDeviceInformation(localDevice, d);
+//        } catch (BACnetException e) {
+//            logger.error("Could not collect additional device information", e);
+//        }
+
+        Optional<DeviceType> deviceType = client.getContext().getTypeRegistry().lookup(DeviceType.INSTANCE);
+        deviceType.map(type -> type.create(client, d.getInstanceNumber()))
+            .ifPresent(device -> {
+                this.devices.add(device);
+                this.callback.accept(d);
+                this.listener.deviceDiscovered(device);
+            });
+
     }
 
     @Override
     public void listenerException(Throwable e) {
         this.exception = e;
     }
+
 }

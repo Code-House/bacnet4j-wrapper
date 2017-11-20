@@ -19,24 +19,25 @@
  */
 package org.code_house.bacnet4j.wrapper.api.property;
 
-import org.code_house.bacnet4j.wrapper.api.Device;
-import org.code_house.bacnet4j.wrapper.api.Type;
+import org.code_house.bacnet4j.wrapper.api.*;
+
+import java.util.Map;
 
 /**
  * Property which have single value, scalar or basic representation in general.
  *
  * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
  */
-public class SimpleProperty extends AbstractProperty {
+public class SimpleProperty extends AbstractProperty<Device> {
 
     private final String units;
 
-    public SimpleProperty(Device device, Type type, int id) {
-        this(device, type, id, "", "", "");
+    public SimpleProperty(Device parent, PropertyType type, int id) {
+        this(parent, type, id, "", "", "");
     }
 
-    public SimpleProperty(Device device, Type type, int id, String name, String description, String units) {
-        super(device, type, id, name, description);
+    public SimpleProperty(Device parent, PropertyType type, int id, String name, String description, String units) {
+        super(parent, type, id, name, description);
         this.units = units;
     }
 

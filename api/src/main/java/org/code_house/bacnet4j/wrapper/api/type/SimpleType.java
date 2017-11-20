@@ -19,27 +19,31 @@
  */
 package org.code_house.bacnet4j.wrapper.api.type;
 
-import org.code_house.bacnet4j.wrapper.api.BacNetElement;
+import org.code_house.bacnet4j.wrapper.api.Context;
 import org.code_house.bacnet4j.wrapper.api.Device;
-import org.code_house.bacnet4j.wrapper.api.Property;
-import org.code_house.bacnet4j.wrapper.api.property.RawProperties;
 import org.code_house.bacnet4j.wrapper.api.property.SimpleProperty;
 
 /**
- * Type representing scalar value.
+ * PropertyType representing scalar value.
  *
  * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
  */
-public class SimpleType<T extends Device> extends AbstractType<T> {
+public class SimpleType extends AbstractPropertyType<Device, SimpleProperty> {
 
     public SimpleType(int code, String name) {
         super(code, name);
     }
 
     @Override
-    public Property create(Device device, int instanceNumber, String name, String description) {
-        String units = (String) device.get(RawProperties.UNITS);
-        return new SimpleProperty(device, this, instanceNumber, name, description, units);
-    }
+    public SimpleProperty create(Device element, int instanceNumber, Context context) {
+        /*
+        Map<PropertyType, BacNetValue> values = element.get(
+            PropertyTypes.units,
+            PropertyTypes.object_name,
+            PropertyTypes.description
+        );
+        */
 
+        return new SimpleProperty(element, this, instanceNumber);
+    }
 }

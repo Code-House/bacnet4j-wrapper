@@ -19,12 +19,10 @@
  */
 package org.code_house.bacnet4j.wrapper.ip;
 
-import com.serotonin.bacnet4j.type.Encodable;
 import org.code_house.bacnet4j.wrapper.api.BacNetClientException;
-import org.code_house.bacnet4j.wrapper.api.BypassBacnetConverter;
+import org.code_house.bacnet4j.wrapper.api.BacNetValue;
 import org.code_house.bacnet4j.wrapper.api.Device;
 import org.code_house.bacnet4j.wrapper.api.Property;
-import org.code_house.bacnet4j.wrapper.api.property.SimpleProperty;
 
 import java.net.InetAddress;
 import java.net.InterfaceAddress;
@@ -98,7 +96,7 @@ public class DiscoveryMain {
                 for (Device device : devices) {
                     System.out.println("  => Device id " + device.getInstanceNumber());
                     System.out.println("     Metadata");
-                    System.out.println("       Address: " + device.getHostAddress() + ":" + device.getPort());
+                    System.out.println("       Address: " + device.getAddress());
                     System.out.println("       Name: " + device.getName());
                     System.out.println("       Model: " + device.getModelName());
                     System.out.println("       Vendor: " + device.getVendorName());
@@ -110,9 +108,9 @@ public class DiscoveryMain {
                         System.out.println("      => Properties:");
                         for (Property property : properties) {
                             try {
-                                Encodable propertyValue = client.getPropertyValue(property, new BypassBacnetConverter());
+                                BacNetValue<Object> propertyValue = client.getPropertyValue(property);
                                 System.out.println(
-                                    String.format("          => Type %s id: %d, present value '%s' type %s",
+                                    String.format("          => PropertyType %s id: %d, present value '%s' type %s",
                                         property.getType(),
                                         property.getId(),
                                         propertyValue,

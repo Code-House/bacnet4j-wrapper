@@ -26,6 +26,10 @@
             <groupId>org.code-house.bacnet4j</groupId>
             <artifactId>api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.code-house.bacnet4j</groupId>
+            <artifactId>util</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>

@@ -19,37 +19,33 @@
  */
 package org.code_house.bacnet4j.wrapper.api.property;
 
-import org.code_house.bacnet4j.wrapper.api.Device;
-import org.code_house.bacnet4j.wrapper.api.Property;
-import org.code_house.bacnet4j.wrapper.api.Type;
+import org.code_house.bacnet4j.wrapper.api.*;
+
+import java.util.Map;
 
 /**
  * Property which have single value, scalar or basic representation in general.
  *
  * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
  */
-public abstract class AbstractProperty implements Property {
+public abstract class AbstractProperty<T extends BacNetElement> implements Property<T> {
 
-    private final Device device;
+    private final T parent;
     private final int id;
-    private final Type type;
+    private final PropertyType type;
     private final String name;
     private final String description;
 
-    public AbstractProperty(Device device, Type type, int id) {
-        this(device, type, id, "", "");
+    public AbstractProperty(T parent, PropertyType type, int id) {
+        this(parent, type, id, "", "");
     }
 
-    public AbstractProperty(Device device, Type type, int id, String name, String description) {
-        this.device = device;
+    public AbstractProperty(T parent, PropertyType type, int id, String name, String description) {
+        this.parent = parent;
         this.id = id;
         this.type = type;
         this.name = name;
         this.description = description;
-    }
-
-    public Device getDevice() {
-        return device;
     }
 
     public int getId() {
@@ -64,13 +60,39 @@ public abstract class AbstractProperty implements Property {
         return description;
     }
 
-    public Type getType() {
+    public PropertyType getType() {
         return type;
+    }
+
+
+    @Override
+    public BacNetValue get(Property property) {
+        return parent.get(property);
+    }
+
+    @Override
+    public Map<Property, BacNetValue> get(Property... properties) {
+        return parent.get(properties);
+    }
+
+    @Override
+    public Map<PropertyType, BacNetValue> get(PropertyType ... properties) {
+        return parent.get(properties);
+    }
+
+    @Override
+    public T getParent() {
+        return parent;
+    }
+
+    @Override
+    public BacNetContext getContext() {
+        return parent.getContext();
     }
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[" + device.getInstanceNumber() + "." + type + "." + id + "]";
+        return getClass().getSimpleName() + "[" + parent + "." + type + "." + id + "]";
     }
 
 }

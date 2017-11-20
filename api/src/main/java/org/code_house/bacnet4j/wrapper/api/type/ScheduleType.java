@@ -1,5 +1,7 @@
 package org.code_house.bacnet4j.wrapper.api.type;
 
+import org.code_house.bacnet4j.wrapper.api.BacNetType;
+import org.code_house.bacnet4j.wrapper.api.Context;
 import org.code_house.bacnet4j.wrapper.api.Device;
 import org.code_house.bacnet4j.wrapper.api.Property;
 import org.code_house.bacnet4j.wrapper.api.property.ScheduleProperty;
@@ -7,14 +9,17 @@ import org.code_house.bacnet4j.wrapper.api.property.ScheduleProperty;
 /**
  * @author dl02
  */
-public class ScheduleType<T extends Device> extends AbstractType<T> {
+public class ScheduleType extends AbstractPropertyType<Device, ScheduleProperty> {
 
-    public ScheduleType() {
-        super(17, "Schedule");
+    public static final int IDENTIFIER = 17;
+    public static final ScheduleType INSTANCE = new ScheduleType();
+
+    private ScheduleType() {
+        super(IDENTIFIER, "Schedule");
     }
 
     @Override
-    public Property create(Device device, int instanceNumber, String name, String description) {
-        return new ScheduleProperty(device, this, instanceNumber, name, description);
+    public ScheduleProperty create(Device device, int instanceNumber, Context context) {
+        return new ScheduleProperty(device, this, instanceNumber);
     }
 }

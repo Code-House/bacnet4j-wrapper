@@ -5,11 +5,10 @@ package org.code_house.bacnet4j.wrapper.api;
  *
  * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
  */
-public interface Property {
+public interface Property<T extends BacNetElement> extends BacNetElement<T> {
 
     int getId();
-    Device getDevice();
     String getName();
-    Type getType();
+    PropertyType getType();
 
 }
