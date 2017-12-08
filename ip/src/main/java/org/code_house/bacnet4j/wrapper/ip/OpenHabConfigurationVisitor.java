@@ -89,12 +89,15 @@ class OpenHabConfigurationVisitor implements Visitor {
             .replaceAll("\\)$", "")
             .replaceAll("}$", "")
             .replaceAll("]$", "")
+            .replace(":|;|\\.", "_")
             .replace("(", "_")
             .replace(")", "_")
             .replace("{", "_")
             .replace("}", "_")
             .replace("[", "_")
-            .replace("]", "_");
+            .replace("]", "_")
+            // in the end - we replace non ascii characters
+            .replaceAll("[^\\x00-\\x7F]", "_");
     }
 
     private static String openhabLabel(Property property) {
