@@ -19,6 +19,9 @@
  */
 package org.code_house.bacnet4j.wrapper.ip;
 
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+
 /**
  * Simple class to run discovery across all network interfaces, fetch discovered devices properties and print out openhab
  * configuration for it.
@@ -28,11 +31,15 @@ package org.code_house.bacnet4j.wrapper.ip;
 public class GeneratorMain {
 
     public static void main(String[] args) throws Exception {
+        PrintStream output = args.length < 6 ? System.out : new PrintStream(new FileOutputStream(args[5]));
         new NetworkProgram(
             new OpenHabConfigurationVisitor(
                 args.length < 4 || Boolean.parseBoolean(args[3]),
-                args.length < 5 || Boolean.parseBoolean(args[4])
+                args.length < 5 || Boolean.parseBoolean(args[4]),
+                output
             )
         ).run(args);
+
+        output.close();
     }
 }

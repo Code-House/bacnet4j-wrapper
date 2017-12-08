@@ -22,9 +22,8 @@ package org.code_house.bacnet4j.wrapper.ip;
 import com.serotonin.bacnet4j.type.Encodable;
 import org.code_house.bacnet4j.wrapper.api.Device;
 import org.code_house.bacnet4j.wrapper.api.Property;
-import org.code_house.bacnet4j.wrapper.api.Type;
 
-import java.util.List;
+import java.io.PrintStream;
 
 import static java.lang.String.format;
 
@@ -37,11 +36,13 @@ class OpenHabConfigurationVisitor implements Visitor {
 
     private final boolean groups;
     private final boolean tags;
+    private final PrintStream output;
     private Device device;
 
-    OpenHabConfigurationVisitor(boolean groups, boolean tags) {
+    OpenHabConfigurationVisitor(boolean groups, boolean tags, PrintStream writer) {
         this.groups = groups;
         this.tags = tags;
+        this.output = writer;
     }
 
     @Override
@@ -52,7 +53,7 @@ class OpenHabConfigurationVisitor implements Visitor {
 
     @Override
     public Flag visit(Property property) {
-        System.out.println(format("%s %s \"%s\" %s %s {bacnet=\"device=%d,type=%s,id=%d\"}",
+        output.println(format("%s %s \"%s\" %s %s {bacnet=\"device=%d,type=%s,id=%d\"}",
             openhabType(property),
             openhabName(property),
             openhabLabel(property),

@@ -4,39 +4,47 @@ import com.serotonin.bacnet4j.type.Encodable;
 import org.code_house.bacnet4j.wrapper.api.Device;
 import org.code_house.bacnet4j.wrapper.api.Property;
 
+import java.io.PrintStream;
+
 class PrintingVisitor implements Visitor {
+
+    private final PrintStream output;
+
+    PrintingVisitor(PrintStream output) {
+        this.output = output;
+    }
 
     @Override
     public Flag visit(Device device) {
-        System.out.println("  => Device id " + device.getInstanceNumber());
-        System.out.println("     Metadata");
-        System.out.println("       Address: " + device.getHostAddress() + ":" + device.getPort());
-        System.out.println("       Name: " + device.getName());
-        System.out.println("       Model: " + device.getModelName());
-        System.out.println("       Vendor: " + device.getVendorName());
+        output.println("  => Device id " + device.getInstanceNumber());
+        output.println("     Metadata");
+        output.println("       Address: " + device.getHostAddress() + ":" + device.getPort());
+        output.println("       Name: " + device.getName());
+        output.println("       Model: " + device.getModelName());
+        output.println("       Vendor: " + device.getVendorName());
         return Flag.CONTNUE;
     }
 
     @Override
     public Flag visit(Property property) {
-        System.out.println(
+        output.println(
             String.format("          => Type %s id: %d",
                 property.getType().name(),
                 property.getId()
             )
         );
 
-        System.out.println("             Metadata");
-        System.out.println("               Name: " + property.getName());
-        System.out.println("               Units: " + property.getUnits());
-        System.out.println("               Description: " + property.getDescription());
+        output.println("             Metadata");
+        output.println("               Name: " + property.getName());
+        output.println("               Units: " + property.getUnits());
+        output.println("               Description: " + property.getDescription());
 
         return Flag.CONTNUE;
     }
 
     @Override
     public Flag visit(Encodable propertyValue) {
-        System.out.println(
+        output.println(
             String.format("             Present value %s, type: %s",
                 propertyValue,
                 propertyValue != null ? propertyValue.getClass().getName() : "<null>"

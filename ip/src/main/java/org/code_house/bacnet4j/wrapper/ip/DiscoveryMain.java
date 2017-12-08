@@ -19,6 +19,9 @@
  */
 package org.code_house.bacnet4j.wrapper.ip;
 
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+
 /**
  * Simple class to run discovery across all network interfaces, fetch discovered devices properties and it's values.
  *
@@ -27,6 +30,8 @@ package org.code_house.bacnet4j.wrapper.ip;
 public class DiscoveryMain {
 
     public static void main(String[] args) throws Exception {
-        new NetworkProgram(new PrintingVisitor()).run(args);
+        PrintStream output = args.length < 4 ? System.out : new PrintStream(new FileOutputStream(args[3]));
+        new NetworkProgram(new PrintingVisitor(output)).run(args);
+        output.close();
     }
 }
