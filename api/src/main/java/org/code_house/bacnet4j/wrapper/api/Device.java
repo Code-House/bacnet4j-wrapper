@@ -111,6 +111,6 @@ public class Device {
 
     @Override
     public String toString() {
-        return "Device [" + instanceNumber + " " + IpNetworkUtils.toString(new OctetString(address)) + " network " + networkNumber + "]";
+        return "Device [" + instanceNumber + " " + new OctetString(address) + " network " + networkNumber + "]";
     }
 }
