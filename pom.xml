@@ -28,8 +28,8 @@
 
     <licenses>
         <license>
-            <name>GNU General Public License, version 2</name>
-            <url>https://www.gnu.org/licenses/gpl-2.0.txt</url>
+            <name>GNU General Public License, version 3</name>
+            <url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
             <comments>Due to bacnet4j dependency this library must be licensed under GNU GPL.</comments>
         </license>
     </licenses>
