@@ -1,9 +1,19 @@
 # Code-House Bacnet4J wrapper
 
+[![CircleCI build](	https://img.shields.io/circleci/project/github/Code-House/bacnet4j-wrapper.svg)](https://circleci.com/gh/Code-House/bacnet4j-wrapper/)
+[![GitHub license](https://img.shields.io/github/license/Code-House/bacnet4j-wrapper.svg)](https://github.com/Code-House/bacnet4j-wrapper/blob/master/LICENSE)
+[![GitHub release](https://img.shields.io/github/release/Code-House/bacnet4j-wrapper.svg)](https://GitHub.com/Code-House/bacnet4j-wrapper/releases/)
+[![Github all releases](https://img.shields.io/github/downloads/Code-House/bacnet4j-wrapper/total.svg)](https://GitHub.com/Code-House/bacnet4j-wrapper/releases/)
+
 Bacnet4j is implementation of bacnet protocol in Java. Bacnet is an standard which is quite old and bacnet4j implementation
 is quite awful when it comes to interacting with devices. To avoid headaches with bacnet4j calls we provided this simple
 facade which hides most of weirdness's of bacnet4j. Thanks to this you can interact with devices, read and set property values,
 in simpler way.
+
+Many of initial surprises which most of developers experienced is cleaned up with 5.0 release (which is now in use), yet
+API of Bacnet4j remains a mystery if you do not follow spec.
+For this reason our wrapper is still maintained. Even if its documentation is not any better than original library, it still
+provides basic operations in less confusing way. 
 
 ```java
 BacNetClient client = new BacNetIpClient("<bind ip>", "<broadcast ip>", <client device id>);
@@ -46,6 +56,6 @@ To build project you need:
 
 ## Links
 
-* [Frozenlock's Bacnet4J fork](https://github.com/Frozenlock/BACnet4J) - this is currently maintained version of bacnet4j used in this project.
+* [Infinite Automation Bacnet4J](https://github.com/infiniteautomation/BACnet4J) - this is currently maintained version of bacnet4j used in this project.
 * [Bacnet4J site](http://bacnet.sourceforge.net)
-* [BACNet-openHAB-binding](https://github.com/Code-House/BACNet-openHAB-binding) - openhab binding which uses this project.
+* [BACNet-openHAB-binding](https://github.com/openhab/org.openhab.binding.bacnet) - openhab binding which uses this project.
