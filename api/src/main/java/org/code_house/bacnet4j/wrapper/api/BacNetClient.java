@@ -46,4 +46,7 @@ public interface BacNetClient {
     <T> T getPropertyValue(Property property, BacNetToJavaConverter<T> converter);
 
     <T> void setPropertyValue(Property property, T value, JavaToBacNetConverter<T> converter);
+    <T> void setPropertyValue(Property property, T value, JavaToBacNetConverter<T> converter, int priority);
+    <T> void setPropertyValue(Property property, T value, JavaToBacNetConverter<T> converter, Priority priority);
+
 }

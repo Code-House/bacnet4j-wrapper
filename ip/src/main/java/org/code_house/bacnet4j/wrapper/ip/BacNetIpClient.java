@@ -38,15 +38,13 @@ import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
+import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import org.code_house.bacnet4j.wrapper.api.*;
 import org.code_house.bacnet4j.wrapper.api.util.ForwardingAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -228,11 +226,25 @@ public class BacNetIpClient implements BacNetClient {
         return converter.toBacNet(object);
     }
 
-
     @Override
     public <T> void setPropertyValue(Property property, T value, JavaToBacNetConverter<T> converter) {
+        setPropertyValue(property, value, converter, 0);
+    }
+
+    @Override
+    public <T> void setPropertyValue(Property property, T value, JavaToBacNetConverter<T> converter, int priority) {
+        setPropertyValue(property, value, converter, Priorities.get(priority).orElse(null));
+    }
+
+    @Override
+    public <T> void setPropertyValue(Property property, T value, JavaToBacNetConverter<T> converter, Priority priority) {
         Encodable bacNetValue = getBacNetValue(value, converter);
-        ServiceFuture send = localDevice.send(property.getDevice().getBacNet4jAddress(), new WritePropertyRequest(property.getBacNet4jIdentifier(), PropertyIdentifier.presentValue, null, bacNetValue, null));
+        UnsignedInteger bacnetPriority = Optional.ofNullable(priority)
+            .map(Priority::getPriority)
+            .map(UnsignedInteger::new)
+            .orElse(null);
+        ServiceFuture send = localDevice.send(property.getDevice().getBacNet4jAddress(),
+            new WritePropertyRequest(property.getBacNet4jIdentifier(), PropertyIdentifier.presentValue, null, bacNetValue, bacnetPriority));
         try {
             send.get();
         } catch (BACnetException e) {
