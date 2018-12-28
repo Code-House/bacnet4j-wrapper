@@ -106,7 +106,7 @@ public class BacNetIpClient implements BacNetClient {
 
     @Override
     public CompletableFuture<Set<Device>> doDiscoverDevices(final DeviceDiscoveryListener discoveryListener, final long timeout) {
-        DiscoveryCallable callable = new DiscoveryCallable(discoveryListener, localDevice, timeout, timeout / 10);
+        BaseDiscoveryCallable callable = new IpDiscoveryCallable(discoveryListener, localDevice, timeout, timeout / 10);
         ForwardingAdapter listener = new ForwardingAdapter(executor, callable);
         localDevice.getEventHandler().addListener(listener);
         localDevice.sendGlobalBroadcast(new WhoIsRequest());
@@ -128,7 +128,7 @@ public class BacNetIpClient implements BacNetClient {
 
     @Override
     public Set<Device> discoverDevices(final DeviceDiscoveryListener discoveryListener, final long timeout) {
-        DiscoveryCallable callable = new DiscoveryCallable(discoveryListener, localDevice, timeout, timeout / 10);
+        BaseDiscoveryCallable callable = new IpDiscoveryCallable(discoveryListener, localDevice, timeout, timeout / 10);
         ForwardingAdapter listener = new ForwardingAdapter(executor, callable);
         try {
             localDevice.getEventHandler().addListener(listener);

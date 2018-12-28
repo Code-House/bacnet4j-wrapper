@@ -17,34 +17,28 @@
  * along with Foobar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.code_house.bacnet4j.wrapper.api;
+package org.code_house.bacnet4j.wrapper.ip;
 
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.RemoteDevice;
-import com.serotonin.bacnet4j.event.DeviceEventAdapter;
-import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.util.DiscoveryUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.concurrent.Callable;
+import org.code_house.bacnet4j.wrapper.api.BaseDiscoveryCallable;
+import org.code_house.bacnet4j.wrapper.api.Device;
+import org.code_house.bacnet4j.wrapper.api.DeviceDiscoveryListener;
 
 /**
- * Collector which creates basic device which is not specific to underlying transport.
+ * Callable which creates IP devices - to be used with IP clients.
  *
  * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
  */
-public class DiscoveryCallable extends BaseDiscoveryCallable {
+public class IpDiscoveryCallable extends BaseDiscoveryCallable {
 
-    public DiscoveryCallable(DeviceDiscoveryListener listener, LocalDevice localDevice, long timeout, long sleep) {
+    public IpDiscoveryCallable(DeviceDiscoveryListener listener, LocalDevice localDevice, long timeout, long sleep) {
         super(listener, localDevice, timeout, sleep);
     }
 
     @Override
     protected Device createDevice(RemoteDevice remoteDevice) {
-        return new Device(remoteDevice.getInstanceNumber(), remoteDevice.getAddress());
+        return new IpDevice(remoteDevice.getInstanceNumber(), remoteDevice.getAddress());
     }
 
 }

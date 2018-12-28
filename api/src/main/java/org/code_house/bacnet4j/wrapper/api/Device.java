@@ -19,13 +19,10 @@
  */
 package org.code_house.bacnet4j.wrapper.api;
 
-import com.serotonin.bacnet4j.npdu.ip.IpNetworkUtils;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.OctetString;
-
-import java.util.Arrays;
 
 /**
  * Representation of bacnet device.
@@ -51,10 +48,6 @@ public class Device {
 
     public Device(int instanceNumber, Address address) {
         this(instanceNumber, address.getMacAddress().getBytes(), address.getNetworkNumber().intValue());
-    }
-
-    public Device(int instanceNumber, String ip, int port, int networkNumber) {
-        this(instanceNumber, IpNetworkUtils.toAddress(networkNumber, ip, port));
     }
 
     public ObjectIdentifier getObjectIdentifier() {
@@ -99,14 +92,6 @@ public class Device {
 
     public Address getBacNet4jAddress() {
         return new Address(networkNumber, address);
-    }
-
-    public String getHostAddress() {
-        return IpNetworkUtils.getInetAddress(new OctetString(address)).getHostAddress();
-    }
-
-    public int getPort() {
-        return IpNetworkUtils.getPort(new OctetString(address));
     }
 
     @Override

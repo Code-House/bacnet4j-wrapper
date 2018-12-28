@@ -1,6 +1,7 @@
 package org.code_house.bacnet4j.wrapper.ip;
 
 import com.serotonin.bacnet4j.type.Encodable;
+import com.serotonin.bacnet4j.type.primitive.OctetString;
 import org.code_house.bacnet4j.wrapper.api.Device;
 import org.code_house.bacnet4j.wrapper.api.Property;
 
@@ -18,7 +19,12 @@ class PrintingVisitor implements Visitor {
     public Flag visit(Device device) {
         output.println("  => Device id " + device.getInstanceNumber());
         output.println("     Metadata");
-        output.println("       Address: " + device.getHostAddress() + ":" + device.getPort());
+        if (device instanceof IpDevice) {
+            IpDevice ipDevice = (IpDevice) device;
+            output.println("       Address: " + ipDevice.getHostAddress() + ":" + ipDevice.getPort());
+        } else {
+            output.println("       Address: " + new OctetString(device.getAddress()).toString());
+        }
         output.println("       Name: " + device.getName());
         output.println("       Model: " + device.getModelName());
         output.println("       Vendor: " + device.getVendorName());
