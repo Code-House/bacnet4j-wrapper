@@ -84,18 +84,9 @@ class OpenHabConfigurationVisitor implements Visitor {
     }
 
     private static String openhabName(Property property) {
-        return property.getName()
-            .replace(" ", "_")
-            .replaceAll("\\)$", "")
-            .replaceAll("}$", "")
-            .replaceAll("]$", "")
-            .replace(":|;|\\.", "_")
-            .replace("(", "_")
-            .replace(")", "_")
-            .replace("{", "_")
-            .replace("}", "_")
-            .replace("[", "_")
-            .replace("]", "_")
+        return property.getName().trim()
+            .replaceAll("[^a-zA-Z0-9\\s]", "")
+            .replaceAll("\\s", "_")
             // in the end - we replace non ascii characters
             .replaceAll("[^\\x00-\\x7F]", "_");
     }
