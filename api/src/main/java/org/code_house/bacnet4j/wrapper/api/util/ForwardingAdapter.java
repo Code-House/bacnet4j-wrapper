@@ -114,52 +114,42 @@ public class ForwardingAdapter extends DeviceEventAdapter {
         });
     }
 
+
     @Override
-    public void covNotificationReceived(UnsignedInteger subscriberProcessIdentifier, RemoteDevice initiatingDevice, ObjectIdentifier monitoredObjectIdentifier, UnsignedInteger timeRemaining, SequenceOf<PropertyValue> listOfValues) {
+    public void covNotificationReceived(final UnsignedInteger subscriberProcessIdentifier, final ObjectIdentifier initiatingDeviceIdentifier,
+        final ObjectIdentifier monitoredObjectIdentifier, final UnsignedInteger timeRemaining, final SequenceOf<PropertyValue> listOfValues) {
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                adapter.covNotificationReceived(subscriberProcessIdentifier, initiatingDevice, monitoredObjectIdentifier, timeRemaining, listOfValues);
+                adapter.covNotificationReceived(subscriberProcessIdentifier, initiatingDeviceIdentifier, monitoredObjectIdentifier, timeRemaining, listOfValues);
             }
         });
     }
 
     @Override
-    public void eventNotificationReceived(UnsignedInteger processIdentifier, RemoteDevice initiatingDevice, ObjectIdentifier eventObjectIdentifier, TimeStamp timeStamp, UnsignedInteger notificationClass, UnsignedInteger priority, EventType eventType, CharacterString messageText, NotifyType notifyType, com.serotonin.bacnet4j.type.primitive.Boolean ackRequired, EventState fromState, EventState toState, NotificationParameters eventValues) {
-        executor.execute(new Runnable() {
+    public void eventNotificationReceived(final UnsignedInteger processIdentifier,
+        final ObjectIdentifier initiatingDeviceIdentifier, final ObjectIdentifier eventObjectIdentifier, final TimeStamp timeStamp,
+        final UnsignedInteger notificationClass, final UnsignedInteger priority, final EventType eventType, final CharacterString messageText,
+        final NotifyType notifyType, final com.serotonin.bacnet4j.type.primitive.Boolean ackRequired, final EventState fromState, final EventState toState,
+        final NotificationParameters eventValues) {
+        // Override as required
+            executor.execute(new Runnable() {
             @Override
             public void run() {
-                adapter.eventNotificationReceived(processIdentifier, initiatingDevice, eventObjectIdentifier, timeStamp, notificationClass, priority, eventType, messageText, notifyType, ackRequired, fromState, toState, eventValues);
+                adapter.eventNotificationReceived(processIdentifier, initiatingDeviceIdentifier, eventObjectIdentifier,
+                    timeStamp, notificationClass, priority, eventType, messageText, notifyType, ackRequired, fromState, toState,
+                    eventValues);
             }
         });
     }
 
     @Override
-    public void textMessageReceived(RemoteDevice textMessageSourceDevice, Choice messageClass, MessagePriority messagePriority, CharacterString message) {
+    public void textMessageReceived(final ObjectIdentifier textMessageSourceDevice, final Choice messageClass,
+        final MessagePriority messagePriority, final CharacterString message) {
         executor.execute(new Runnable() {
             @Override
             public void run() {
                 adapter.textMessageReceived(textMessageSourceDevice, messageClass, messagePriority, message);
-            }
-        });
-    }
-
-    @Override
-    public void privateTransferReceived(Address from, UnsignedInteger vendorId, UnsignedInteger serviceNumber, Sequence serviceParameters) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                adapter.privateTransferReceived(from, vendorId, serviceNumber, serviceParameters);
-            }
-        });
-    }
-
-    @Override
-    public void reinitializeDevice(Address from, ReinitializeDeviceRequest.ReinitializedStateOfDevice reinitializedStateOfDevice) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                adapter.reinitializeDevice(from, reinitializedStateOfDevice);
             }
         });
     }

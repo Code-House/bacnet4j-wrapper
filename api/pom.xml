@@ -19,7 +19,10 @@
         <osgi.import>*</osgi.import>
         <osgi.export>
             org.code_house.bacnet4j.wrapper.api.*,
-            com.serotonin.bacnet4j.*
+            com.serotonin.bacnet4j.*;;version=${bacnet4j.version},
+            <!-- rexport sero-* packages -->
+            lohbihler.scheduler;version=${sero-scheduler.version},
+            lohbihler.warp;version=${sero-warp.version}
         </osgi.export>
     </properties>
 
@@ -27,14 +30,32 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.12</version>
+        </dependency>
+        <!-- transient dependency on sero-* stuff -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
             <groupId>com.serotonin</groupId>
             <artifactId>bacnet4j</artifactId>
-            <version>3.2.4</version>
+            <version>${bacnet4j.version}</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/../lib/bacnet4j-3.2.4.jar</systemPath>
+            <systemPath>${project.basedir}/../lib/bacnet4j-${bacnet4j.version}.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>ai.serotonin.oss</groupId>
+            <artifactId>sero-scheduler </artifactId>
+            <version>${sero-scheduler.version}</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../lib/sero-scheduler-${sero-scheduler.version}.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>ai.serotonin.oss</groupId>
+            <artifactId>sero-warp</artifactId>
+            <version>${sero-warp.version}</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../lib/sero-warp-${sero-warp.version}.jar</systemPath>
         </dependency>
     </dependencies>
 

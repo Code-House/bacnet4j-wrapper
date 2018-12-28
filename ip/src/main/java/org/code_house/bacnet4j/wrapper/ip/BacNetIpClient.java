@@ -74,19 +74,19 @@ public class BacNetIpClient implements BacNetClient {
     }
 
     public BacNetIpClient(String ip, String broadcast, int port, int deviceId) {
-        this(new IpNetworkBuilder().localBindAddress(ip).broadcastIp(broadcast).port(port).build(), deviceId);
+        this(new IpNetworkBuilder().withLocalBindAddress(ip).withBroadcast(broadcast, 24).withPort(port).build(), deviceId);
     }
 
     public BacNetIpClient(String broadcast, int port, int deviceId) {
-        this(new IpNetworkBuilder().broadcastIp(broadcast).port(port).build(), deviceId);
+        this(new IpNetworkBuilder().withBroadcast(broadcast, 24).withPort(port).build(), deviceId);
     }
 
     public BacNetIpClient(String ip, String broadcast, int deviceId) {
-        this(new IpNetworkBuilder().localBindAddress(ip).broadcastIp(broadcast).build(), deviceId);
+        this(new IpNetworkBuilder().withLocalBindAddress(ip).withBroadcast(broadcast, 24).build(), deviceId);
     }
 
     public BacNetIpClient(String broadcast, int deviceId) {
-        this(new IpNetworkBuilder().broadcastIp(broadcast).build(), deviceId);
+        this(new IpNetworkBuilder().withBroadcast(broadcast, 24).build(), deviceId);
     }
 
     @Override
@@ -266,11 +266,11 @@ public class BacNetIpClient implements BacNetClient {
                 new ReadPropertyMultipleRequest(new SequenceOf<>(specs))).get();
             SequenceOf<ReadAccessResult> readAccessResults = propertyDescriptorAck.getListOfReadAccessResults();
 
-            String name = getReadValue(readAccessResults.get(3));
-            String units = getReadValue(readAccessResults.get(2));
-            String description = getReadValue(readAccessResults.get(4));
+            String name = getReadValue(readAccessResults.get(2));
+            String units = getReadValue(readAccessResults.get(1));
+            String description = getReadValue(readAccessResults.get(3));
             // present value used for mapping
-            // TypeMapping type = getPropertyType(readAccessResults.get(1));
+            // TypeMapping type = getPropertyType(readAccessResults.get(0));
 
             return new Property(device, id.getInstanceNumber(), name, description, units,
                 Type.valueOf(id.getObjectType()));
@@ -281,7 +281,7 @@ public class BacNetIpClient implements BacNetClient {
 
     private String getReadValue(ReadAccessResult readAccessResult) {
         // first index contains 0 value.. I know it is weird, but that's how bacnet4j works
-        return readAccessResult.getListOfResults().get(1).getReadResult().toString();
+        return readAccessResult.getListOfResults().get(0).getReadResult().toString();
     }
 
 }
