@@ -55,7 +55,7 @@ public class NetworkProgram {
             timeout = Long.parseLong(args[1]);
         }
 
-        int deviceId = 1339;
+        int deviceId = 1441;
         if (args.length > 2) {
             deviceId = Integer.parseInt(args[2]);
         }

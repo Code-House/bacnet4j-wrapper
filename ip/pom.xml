@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>ip</artifactId>
+    <packaging>bundle</packaging>
 
     <name>Code-House :: Bacnet4J Wrapper :: IP</name>
     <description>Implementation of bacnet4j wrapper based on IP.</description>
