@@ -16,7 +16,10 @@
     <description>General definition of software interface/API.</description>
 
     <properties>
-        <osgi.import>*</osgi.import>
+        <osgi.import>
+            jssc;resolution:=optional,
+            *
+        </osgi.import>
         <osgi.export>
             org.code_house.bacnet4j.wrapper.api.*,
             com.serotonin.bacnet4j.*;;version=${bacnet4j.version},
