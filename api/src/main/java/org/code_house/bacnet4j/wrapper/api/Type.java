@@ -36,7 +36,24 @@ public enum Type {
     BINARY_VALUE("binaryValue", ObjectType.binaryValue),
     MULTISTATE_INPUT("multiStateInput", ObjectType.multiStateInput),
     MULTISTATE_OUTPUT("multiStateOutput", ObjectType.multiStateOutput),
-    MULTISTATE_VALUE("multiStateValue", ObjectType.multiStateValue);
+    MULTISTATE_VALUE("multiStateValue", ObjectType.multiStateValue),
+
+    CALENDAR ("calendar", ObjectType.calendar),
+    PULSE_CONVETHING_RTER("pulseCoverter", ObjectType.pulseConverter),
+
+    SCHEDULE("schedule", ObjectType.schedule),
+    CHARACTER_STRING("characterstringValue", ObjectType.characterstringValue),
+    DATE_TIME("dateTimeValue", ObjectType.datetimeValue),
+    LARGE_ANALOG("largeAnalogValue", ObjectType.largeAnalogValue),
+    OCTET_STRING("octetstringValue", ObjectType.octetstringValue),
+    TIME("timeValue", ObjectType.timeValue),
+    INTEGER("integerValue", ObjectType.integerValue),
+    POSITIVE_INTEGER("positiveIntegerValue", ObjectType.positiveIntegerValue),
+    DATE_TIME_PATTERN("datetimePatternValue", ObjectType.datetimePatternValue),
+    TIME_PATTERN("timePatternValue", ObjectType.timePatternValue),
+    DATE_PATTERN("datePatternValue", ObjectType.datePatternValue),
+    ACCUMULATOR("accumulator", ObjectType.accumulator);
+
 
     private final String name;
     private final ObjectType bacNetType;
