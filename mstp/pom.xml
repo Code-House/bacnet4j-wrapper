@@ -16,7 +16,10 @@
     <description>Implementation of bacnet4j wrapper based on MSTP/serial interface.</description>
 
     <properties>
-        <osgi.import>*</osgi.import>
+        <osgi.import>
+            jssc;resolution:=optional,
+            *
+        </osgi.import>
         <osgi.export>
             org.code_house.bacnet4j.wrapper.mstp
         </osgi.export>
