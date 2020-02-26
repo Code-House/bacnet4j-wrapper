@@ -23,7 +23,15 @@ import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.event.DeviceEventAdapter;
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.service.acknowledgement.ReadPropertyAck;
+import com.serotonin.bacnet4j.service.confirmed.ReadPropertyRequest;
+import com.serotonin.bacnet4j.type.Encodable;
+import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
+import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.util.DiscoveryUtils;
+import com.serotonin.bacnet4j.util.PropertyReferences;
+import com.serotonin.bacnet4j.util.PropertyValues;
+import com.serotonin.bacnet4j.util.RequestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +79,42 @@ public abstract class BaseDiscoveryCallable extends DeviceEventAdapter implement
     @Override
     public void iAmReceived(RemoteDevice d) {
         try {
-            DiscoveryUtils.getExtendedDeviceInformation(localDevice, d);
+            final ObjectIdentifier oid = d.getObjectIdentifier();
+
+            // Get the device's supported services
+            if (d.getServicesSupported() == null) {
+                final ReadPropertyAck supportedServicesAck = (ReadPropertyAck) localDevice
+                    .send(d, new ReadPropertyRequest(oid, PropertyIdentifier.protocolServicesSupported)).get();
+                d.setDeviceProperty(PropertyIdentifier.protocolServicesSupported, supportedServicesAck.getValue());
+            }
+
+            // Uses the readProperties method here because this list will probably be extended.
+            final PropertyReferences properties = new PropertyReferences();
+            addIfMissing(d, properties, PropertyIdentifier.objectName);
+            addIfMissing(d, properties, PropertyIdentifier.protocolVersion);
+            addIfMissing(d, properties, PropertyIdentifier.vendorIdentifier);
+            addIfMissing(d, properties, PropertyIdentifier.modelName);
+            addIfMissing(d, properties, PropertyIdentifier.maxSegmentsAccepted);
+
+            if (properties.size() > 0) {
+                // Only send a request if we have to.
+                final PropertyValues values = RequestUtils.readProperties(localDevice, d, properties, false, null);
+
+                values.forEach((opr) -> {
+                    final Encodable value = values.getNullOnError(oid, opr.getPropertyIdentifier());
+                    d.setDeviceProperty(opr.getPropertyIdentifier(), value);
+                });
+            }
+
+            if (properties.size() > 0) {
+                // Only send a request if we have to.
+                final PropertyValues values = RequestUtils.readProperties(localDevice, d, properties, false, null);
+
+                values.forEach((opr) -> {
+                    final Encodable value = values.getNullOnError(oid, opr.getPropertyIdentifier());
+                    d.setDeviceProperty(opr.getPropertyIdentifier(), value);
+                });
+            }
         } catch (BACnetException e) {
             logger.error("Could not collect additional device information", e);
         }
@@ -94,5 +137,11 @@ public abstract class BaseDiscoveryCallable extends DeviceEventAdapter implement
     @Override
     public void listenerException(Throwable e) {
         this.exception = e;
+    }
+
+    private static void addIfMissing(final RemoteDevice d, final PropertyReferences properties, final PropertyIdentifier pid) {
+        if (d.getDeviceProperty(pid) == null) {
+            properties.add(d.getObjectIdentifier(), pid);
+        }
     }
 }
