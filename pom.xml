@@ -48,6 +48,7 @@
     <modules>
         <module>api</module>
         <module>ip</module>
+        <module>mstp</module>
         <module>assembly</module>
     </modules>
 
@@ -87,6 +88,11 @@
             <dependency>
                 <groupId>org.code-house.bacnet4j</groupId>
                 <artifactId>ip</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.code-house.bacnet4j</groupId>
+                <artifactId>mstp</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

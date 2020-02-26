@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.code-house.bacnet4j</groupId>
+        <artifactId>bacnet4j-wrapper</artifactId>
+        <version>1.2.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>mstp</artifactId>
+    <packaging>bundle</packaging>
+
+    <name>Code-House :: Bacnet4J Wrapper :: MSTP</name>
+    <description>Implementation of bacnet4j wrapper based on MSTP/serial interface.</description>
+
+    <properties>
+        <osgi.import>*</osgi.import>
+        <osgi.export>
+            org.code_house.bacnet4j.wrapper.mstp
+        </osgi.export>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.code-house.bacnet4j</groupId>
+            <artifactId>api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.scream3r</groupId>
+            <artifactId>jssc</artifactId>
+            <version>2.8.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.serotonin</groupId>
+            <artifactId>bacnet4j</artifactId>
+            <version>${bacnet4j.version}</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../lib/bacnet4j-${bacnet4j.version}.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>ai.serotonin.oss</groupId>
+            <artifactId>sero-scheduler </artifactId>
+            <version>${sero-scheduler.version}</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../lib/sero-scheduler-${sero-scheduler.version}.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>ai.serotonin.oss</groupId>
+            <artifactId>sero-warp</artifactId>
+            <version>${sero-warp.version}</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../lib/sero-warp-${sero-warp.version}.jar</systemPath>
+        </dependency>
+    </dependencies>
+
+</project>

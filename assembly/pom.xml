@@ -24,6 +24,10 @@
             <artifactId>ip</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.code-house.bacnet4j</groupId>
+            <artifactId>mstp</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
         </dependency>

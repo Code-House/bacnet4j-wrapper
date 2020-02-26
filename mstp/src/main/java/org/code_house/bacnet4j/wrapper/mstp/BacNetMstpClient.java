@@ -17,9 +17,10 @@
  * along with Foobar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.code_house.bacnet4j.wrapper.ip;
+package org.code_house.bacnet4j.wrapper.mstp;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -27,45 +28,34 @@ import java.util.concurrent.Future;
 import org.code_house.bacnet4j.wrapper.api.BacNetClientBase;
 import org.code_house.bacnet4j.wrapper.api.BacNetClientException;
 import org.code_house.bacnet4j.wrapper.api.BaseDiscoveryCallable;
+import org.code_house.bacnet4j.wrapper.api.BypassBacnetConverter;
 import org.code_house.bacnet4j.wrapper.api.Device;
 import org.code_house.bacnet4j.wrapper.api.DeviceDiscoveryListener;
+import org.code_house.bacnet4j.wrapper.api.Property;
 import org.code_house.bacnet4j.wrapper.api.util.ForwardingAdapter;
 import com.serotonin.bacnet4j.LocalDevice;
-import com.serotonin.bacnet4j.npdu.ip.IpNetwork;
-import com.serotonin.bacnet4j.npdu.ip.IpNetworkBuilder;
+import com.serotonin.bacnet4j.npdu.mstp.MstpNetwork;
 import com.serotonin.bacnet4j.service.unconfirmed.WhoIsRequest;
 import com.serotonin.bacnet4j.transport.DefaultTransport;
 
 /**
- * Implementation of bacnet client based on IpNetwork/UDP transport.
+ * Implementation of bacnet client based on serial transport.
  *
  * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
  */
-public class BacNetIpClient extends BacNetClientBase {
+public class BacNetMstpClient extends BacNetClientBase {
 
-    public BacNetIpClient(IpNetwork network, int deviceId) {
+    public BacNetMstpClient(MstpNetwork network, int deviceId) {
         super(new LocalDevice(deviceId, new DefaultTransport(network)));
     }
 
-    public BacNetIpClient(String ip, String broadcast, int port, int deviceId) {
-        this(new IpNetworkBuilder().withLocalBindAddress(ip).withBroadcast(broadcast, 24).withPort(port).build(), deviceId);
-    }
-
-    public BacNetIpClient(String broadcast, int port, int deviceId) {
-        this(new IpNetworkBuilder().withBroadcast(broadcast, 24).withPort(port).build(), deviceId);
-    }
-
-    public BacNetIpClient(String ip, String broadcast, int deviceId) {
-        this(new IpNetworkBuilder().withLocalBindAddress(ip).withBroadcast(broadcast, 24).build(), deviceId);
-    }
-
-    public BacNetIpClient(String broadcast, int deviceId) {
-        this(new IpNetworkBuilder().withBroadcast(broadcast, 24).build(), deviceId);
+    public BacNetMstpClient(String port, int deviceId) throws Exception {
+        this(new JsscMstpNetworkBuilder().withSerialPort(port).build(), deviceId);
     }
 
     @Override
     public CompletableFuture<Set<Device>> doDiscoverDevices(final DeviceDiscoveryListener discoveryListener, final long timeout) {
-        BaseDiscoveryCallable callable = new IpDiscoveryCallable(discoveryListener, localDevice, timeout, timeout / 10);
+        BaseDiscoveryCallable callable = new MstpDiscoveryCallable(discoveryListener, localDevice, timeout, timeout / 10);
         ForwardingAdapter listener = new ForwardingAdapter(executor, callable);
         localDevice.getEventHandler().addListener(listener);
         localDevice.sendGlobalBroadcast(new WhoIsRequest());
@@ -82,7 +72,7 @@ public class BacNetIpClient extends BacNetClientBase {
 
     @Override
     public Set<Device> discoverDevices(final DeviceDiscoveryListener discoveryListener, final long timeout) {
-        BaseDiscoveryCallable callable = new IpDiscoveryCallable(discoveryListener, localDevice, timeout, timeout / 10);
+        BaseDiscoveryCallable callable = new MstpDiscoveryCallable(discoveryListener, localDevice, timeout, timeout / 10);
         ForwardingAdapter listener = new ForwardingAdapter(executor, callable);
         try {
             localDevice.getEventHandler().addListener(listener);
