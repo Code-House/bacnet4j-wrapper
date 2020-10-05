@@ -47,6 +47,7 @@ public enum Type {
     LARGE_ANALOG("largeAnalogValue", ObjectType.largeAnalogValue),
     OCTET_STRING("octetstringValue", ObjectType.octetstringValue),
     TIME("timeValue", ObjectType.timeValue),
+    DATE_VALUE("dateValue", ObjectType.dateValue),
     INTEGER("integerValue", ObjectType.integerValue),
     POSITIVE_INTEGER("positiveIntegerValue", ObjectType.positiveIntegerValue),
     DATE_TIME_PATTERN("datetimePatternValue", ObjectType.datetimePatternValue),
