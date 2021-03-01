@@ -19,6 +19,13 @@
  */
 package org.code_house.bacnet4j.wrapper.mstp;
 
+import com.serotonin.bacnet4j.LocalDevice;
+import com.serotonin.bacnet4j.npdu.mstp.MstpNetwork;
+import com.serotonin.bacnet4j.service.unconfirmed.WhoIsRequest;
+import com.serotonin.bacnet4j.transport.DefaultTransport;
+import com.serotonin.bacnet4j.type.constructed.ReadAccessResult;
+import com.serotonin.bacnet4j.type.constructed.ReadAccessResult.Result;
+import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -29,11 +36,9 @@ import org.code_house.bacnet4j.wrapper.api.BacNetClientException;
 import org.code_house.bacnet4j.wrapper.api.BaseDiscoveryCallable;
 import org.code_house.bacnet4j.wrapper.api.Device;
 import org.code_house.bacnet4j.wrapper.api.DeviceDiscoveryListener;
+import org.code_house.bacnet4j.wrapper.api.Property;
+import org.code_house.bacnet4j.wrapper.api.Type;
 import org.code_house.bacnet4j.wrapper.api.util.ForwardingAdapter;
-import com.serotonin.bacnet4j.LocalDevice;
-import com.serotonin.bacnet4j.npdu.mstp.MstpNetwork;
-import com.serotonin.bacnet4j.service.unconfirmed.WhoIsRequest;
-import com.serotonin.bacnet4j.transport.DefaultTransport;
 
 /**
  * Implementation of bacnet client based on serial transport.
@@ -85,6 +90,16 @@ public class BacNetMstpClient extends BacNetClientBase {
             localDevice.getEventHandler().removeListener(listener);
         }
         return Collections.emptySet();
+    }
+
+    @Override
+    protected Property createProperty(Device device, int instance, Type type, SequenceOf<ReadAccessResult> readAccessResults) {
+        SequenceOf<Result> result = readAccessResults.get(0).getListOfResults();
+        String name = result.get(2).toString();
+        String units = result.get(1).toString();
+        String description = result.get(3).toString();
+
+        return new Property(device, instance, name, description, units, type);
     }
 
 }

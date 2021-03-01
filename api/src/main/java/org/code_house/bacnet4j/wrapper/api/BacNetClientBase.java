@@ -178,27 +178,19 @@ public abstract class BacNetClientBase implements BacNetClient {
         specs.add(new ReadAccessSpecification(id, PropertyIdentifier.units));
         specs.add(new ReadAccessSpecification(id, PropertyIdentifier.objectName));
         specs.add(new ReadAccessSpecification(id, PropertyIdentifier.description));
+
         try {
             ReadPropertyMultipleAck propertyDescriptorAck = localDevice.send(device.getBacNet4jAddress(),
-                    new ReadPropertyMultipleRequest(new SequenceOf<>(specs))).get();
+                new ReadPropertyMultipleRequest(new SequenceOf<>(specs))).get();
             SequenceOf<ReadAccessResult> readAccessResults = propertyDescriptorAck.getListOfReadAccessResults();
-
-            String name = getReadValue(readAccessResults.get(2));
-            String units = getReadValue(readAccessResults.get(1));
-            String description = getReadValue(readAccessResults.get(3));
-            // present value used for mapping
-            // TypeMapping type = getPropertyType(readAccessResults.get(0));
-
-            return new Property(device, id.getInstanceNumber(), name, description, units,
-                    Type.valueOf(id.getObjectType()));
+            return createProperty(device, id.getInstanceNumber(), Type.valueOf(id.getObjectType()),
+                readAccessResults
+            );
         } catch (BACnetException e) {
             throw new BacNetClientException("Unable to fetch property description", e);
         }
     }
 
-    private String getReadValue(ReadAccessResult readAccessResult) {
-        // first index contains 0 value.. I know it is weird, but that's how bacnet4j works
-        return readAccessResult.getListOfResults().get(0).getReadResult().toString();
-    }
+    protected abstract Property createProperty(Device device, int instance, Type type, SequenceOf<ReadAccessResult> readAccessResults);
 
 }

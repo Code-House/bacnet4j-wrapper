@@ -19,6 +19,8 @@
  */
 package org.code_house.bacnet4j.wrapper.ip;
 
+import com.serotonin.bacnet4j.type.constructed.ReadAccessResult;
+import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -29,6 +31,8 @@ import org.code_house.bacnet4j.wrapper.api.BacNetClientException;
 import org.code_house.bacnet4j.wrapper.api.BaseDiscoveryCallable;
 import org.code_house.bacnet4j.wrapper.api.Device;
 import org.code_house.bacnet4j.wrapper.api.DeviceDiscoveryListener;
+import org.code_house.bacnet4j.wrapper.api.Property;
+import org.code_house.bacnet4j.wrapper.api.Type;
 import org.code_house.bacnet4j.wrapper.api.util.ForwardingAdapter;
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.npdu.ip.IpNetwork;
@@ -98,6 +102,19 @@ public class BacNetIpClient extends BacNetClientBase {
             localDevice.getEventHandler().removeListener(listener);
         }
         return Collections.emptySet();
+    }
+
+    @Override
+    protected Property createProperty(Device device, int instance, Type type, SequenceOf<ReadAccessResult> readAccessResults) {
+        String name = getReadValue(readAccessResults.get(2));
+        String units = getReadValue(readAccessResults.get(1));
+        String description = getReadValue(readAccessResults.get(3));
+        return new Property(device, instance, name, description, units, type);
+    }
+
+    private String getReadValue(ReadAccessResult readAccessResult) {
+        // first index contains 0 value.. I know it is weird, but that's how bacnet4j works
+        return readAccessResult.getListOfResults().get(0).getReadResult().toString();
     }
 
 }
