@@ -2,10 +2,15 @@ package org.code_house.bacnet4j.wrapper.ip;
 
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.primitive.OctetString;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Stack;
 import org.code_house.bacnet4j.wrapper.api.Device;
 import org.code_house.bacnet4j.wrapper.api.Property;
 
 import java.io.PrintStream;
+import org.code_house.bacnet4j.wrapper.api.Type;
 
 class PrintingVisitor implements Visitor {
 
@@ -39,7 +44,6 @@ class PrintingVisitor implements Visitor {
                 property.getId()
             )
         );
-
         output.println("             Metadata");
         output.println("               Name: " + property.getName());
         output.println("               Units: " + property.getUnits());

@@ -71,11 +71,14 @@ public abstract class BacNetClientBase implements BacNetClient {
             SequenceOf<ObjectIdentifier> value = ack.getValue();
 
             List<Property> properties = new ArrayList<>();
+            logger.debug("Received list of BACnet properties. Size {}, values {}", value.getCount(), value);
             for (ObjectIdentifier id : value) {
-                if (ObjectType.device.equals(id.getObjectType())) {
-                    continue;
-                }
+                logger.trace("Creating property from object identifier {}", id);
                 try {
+                    if (ObjectType.device.equals(id.getObjectType())) {
+                        properties.add(createProperty(device, id));
+                        continue;
+                    }
                     properties.add(createProperty(device, id));
                 } catch (UnsupportedTypeException e) {
                     logger.warn("Discovered unsupported property, ignoring", e);

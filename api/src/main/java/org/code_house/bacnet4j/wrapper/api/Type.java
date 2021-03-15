@@ -53,7 +53,11 @@ public enum Type {
     DATE_TIME_PATTERN("datetimePatternValue", ObjectType.datetimePatternValue),
     TIME_PATTERN("timePatternValue", ObjectType.timePatternValue),
     DATE_PATTERN("datePatternValue", ObjectType.datePatternValue),
-    ACCUMULATOR("accumulator", ObjectType.accumulator);
+    ACCUMULATOR("accumulator", ObjectType.accumulator),
+
+    DEVICE ("device", ObjectType.device),
+    TREND_LOG ("trendLog", ObjectType.trendLog),
+    FILE ("trendLog", ObjectType.file);
 
 
     private final String name;

@@ -19,6 +19,7 @@
  */
 package org.code_house.bacnet4j.wrapper.ip;
 
+import org.code_house.bacnet4j.wrapper.api.BacNetClientException;
 import org.code_house.bacnet4j.wrapper.api.BypassBacnetConverter;
 import org.code_house.bacnet4j.wrapper.api.Device;
 import org.code_house.bacnet4j.wrapper.api.Property;
@@ -28,6 +29,7 @@ import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import org.code_house.bacnet4j.wrapper.api.Type;
 
 /**
  * Simple class to run discovery across all network interfaces, fetch discovered devices properties and it's values.
@@ -97,18 +99,7 @@ public class NetworkProgram {
                 System.out.println(" => No Devices found");
             } else {
                 for (Device device : devices) {
-                    if (visitor.visit(device) == Visitor.Flag.CONTNUE) {
-                        List<Property> properties = client.getDeviceProperties(device);
-                        if (properties.isEmpty()) {
-                            System.out.println("      => No properties found");
-                        } else {
-                            for (Property property : properties) {
-                                if (visitor.visit(property) == Visitor.Flag.CONTNUE) {
-                                    visitor.visit(client.getPropertyValue(property, new BypassBacnetConverter()));
-                                }
-                            }
-                        }
-                    }
+                    visit(client, device);
                 }
             }
 
@@ -116,5 +107,27 @@ public class NetworkProgram {
         }
 
         System.out.println("Discovery complete");
+    }
+
+    private void visit(BacNetIpClient client, Device device) {
+        if (visitor.visit(device) == Visitor.Flag.CONTNUE) {
+            List<Property> properties = client.getDeviceProperties(device);
+            if (properties.isEmpty()) {
+                System.out.println("      => No properties found");
+            } else {
+                for (Property property : properties) {
+                    if (property.getType() == Type.DEVICE) {
+                        visit(client, new Device(property.getId(), device.getBacNet4jAddress()));
+                    }
+                    if (visitor.visit(property) == Visitor.Flag.CONTNUE) {
+                        try {
+                            visitor.visit(client.getPropertyValue(property, new BypassBacnetConverter()));
+                        } catch (BacNetClientException e) {
+                            System.out.println("      => Error: " + e.getMessage());
+                        }
+                    }
+                }
+            }
+        }
     }
 }
