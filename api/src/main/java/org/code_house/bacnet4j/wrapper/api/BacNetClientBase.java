@@ -1,6 +1,7 @@
 package org.code_house.bacnet4j.wrapper.api;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -98,6 +99,35 @@ public abstract class BacNetClientBase implements BacNetClient {
                     PropertyIdentifier.presentValue)).get();
 
             return (T) getJavaValue(presentValue.getValue(), converter);
+        } catch (BACnetException e) {
+            e.printStackTrace();
+            throw new BacNetClientException("Could not get property value", e);
+        }
+    }
+
+    @Override
+    public List<String> getPropertyAttributeNames(Property property) {
+        try {
+            ReadPropertyAck answer = localDevice.send(property.getDevice().getBacNet4jAddress(),
+                new ReadPropertyRequest(new ObjectIdentifier(property.getType().getBacNetType(), property.getId()),
+                    PropertyIdentifier.propertyList)).get();
+
+            System.out.println(answer);
+
+            return Collections.emptyList();
+        } catch (BACnetException e) {
+            throw new BacNetClientException("Could not get property value", e);
+        }
+    }
+
+    @Override
+    public <T> T getPropertyAttributeValue(Property property, String attribute, BacNetToJavaConverter<T> converter) {
+        try {
+            ReadPropertyAck propertyVal = localDevice.send(property.getDevice().getBacNet4jAddress(),
+                new ReadPropertyRequest(new ObjectIdentifier(property.getType().getBacNetType(), property.getId()),
+                    PropertyIdentifier.forName(attribute))).get();
+
+            return (T) getJavaValue(propertyVal.getValue(), converter);
         } catch (BACnetException e) {
             throw new BacNetClientException("Could not get property value", e);
         }

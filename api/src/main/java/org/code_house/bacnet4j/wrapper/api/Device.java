@@ -23,6 +23,8 @@ import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.OctetString;
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Representation of bacnet device.
@@ -97,5 +99,33 @@ public class Device {
     @Override
     public String toString() {
         return "Device [" + instanceNumber + " " + new OctetString(address) + " network " + networkNumber + "]";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Device)) {
+            return false;
+        }
+        Device device = (Device) o;
+        return getInstanceNumber() == device.getInstanceNumber()
+            && getNetworkNumber() == device.getNetworkNumber()
+            && Arrays.equals(getAddress(), device.getAddress()) && Objects.equals(getModelName(), device.getModelName())
+            && Objects.equals(getVendorName(), device.getVendorName())
+            && Objects.equals(getName(), device.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(getInstanceNumber(),
+            getNetworkNumber(),
+            getModelName(),
+            getVendorName(),
+            getName()
+        );
+        result = 31 * result + Arrays.hashCode(getAddress());
+        return result;
     }
 }

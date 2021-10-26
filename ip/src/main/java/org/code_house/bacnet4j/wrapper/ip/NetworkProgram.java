@@ -117,13 +117,21 @@ public class NetworkProgram {
             } else {
                 for (Property property : properties) {
                     if (property.getType() == Type.DEVICE) {
-                        visit(client, new Device(property.getId(), device.getBacNet4jAddress()));
+                        Device subDevice = new Device(property.getId(), device.getBacNet4jAddress());
+                        if (!device.equals(subDevice)) {
+                            visit(client, subDevice);
+                        }
                     }
                     if (visitor.visit(property) == Visitor.Flag.CONTNUE) {
                         try {
                             visitor.visit(client.getPropertyValue(property, new BypassBacnetConverter()));
                         } catch (BacNetClientException e) {
                             System.out.println("      => Error: " + e.getMessage());
+                            List<String> attributeNames = client.getPropertyAttributeNames(property);
+                            for (String attribute : attributeNames) {
+                                System.out.println("      Attribute " + attribute);
+                                visitor.visit(client.getPropertyAttributeValue(property, attribute, new BypassBacnetConverter()));
+                            }
                         }
                     }
                 }

@@ -19,6 +19,12 @@
  */
 package org.code_house.bacnet4j.wrapper.api;
 
+import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.service.acknowledgement.ReadPropertyAck;
+import com.serotonin.bacnet4j.service.confirmed.ReadPropertyRequest;
+import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
+import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -48,5 +54,9 @@ public interface BacNetClient {
     <T> void setPropertyValue(Property property, T value, JavaToBacNetConverter<T> converter);
     <T> void setPropertyValue(Property property, T value, JavaToBacNetConverter<T> converter, int priority);
     <T> void setPropertyValue(Property property, T value, JavaToBacNetConverter<T> converter, Priority priority);
+
+
+    List<String> getPropertyAttributeNames(Property property);
+    <T> T getPropertyAttributeValue(Property property, String attribute, BacNetToJavaConverter<T> converter);
 
 }

@@ -48,7 +48,11 @@ import org.code_house.bacnet4j.wrapper.api.util.ForwardingAdapter;
 public class BacNetMstpClient extends BacNetClientBase {
 
     public BacNetMstpClient(MstpNetwork network, int deviceId) {
-        super(new LocalDevice(deviceId, new DefaultTransport(network)));
+        this(network, deviceId, 60_000, 5_000);
+    }
+
+    public BacNetMstpClient(MstpNetwork network, int deviceId, int timeout, int segTimeout) {
+        super(new LocalDevice(deviceId, createTransport(network, timeout, segTimeout)));
     }
 
     public BacNetMstpClient(String port, int deviceId) throws Exception {
@@ -101,5 +105,12 @@ public class BacNetMstpClient extends BacNetClientBase {
 
         return new Property(device, instance, name, description, units, type);
     }
+
+    private static DefaultTransport createTransport(MstpNetwork network, int timeout, int segTimeout) {
+        DefaultTransport transport = new DefaultTransport(network);
+        transport.setTimeout(timeout);
+        transport.setSegTimeout(segTimeout);
+        return transport;
+}
 
 }
