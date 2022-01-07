@@ -97,6 +97,6 @@ To build project you need:
 
 ## Links
 
-* [Infinite Automation Bacnet4J](https://github.com/infiniteautomation/BACnet4J) - this is currently maintained version of bacnet4j used in this project.
+* [Mango Automation BACnet4J](https://github.com/MangoAutomation/BACnet4J) - this is currently maintained version of BACnet4J used in this project.
 * [Bacnet4J site](http://bacnet.sourceforge.net)
 * [BACNet-openHAB-binding](https://github.com/openhab/org.openhab.binding.bacnet) - openhab binding which uses this project.
