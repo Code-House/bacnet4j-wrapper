@@ -125,13 +125,12 @@ public class NetworkProgram {
                     if (visitor.visit(property) == Visitor.Flag.CONTNUE) {
                         try {
                             visitor.visit(client.getPropertyValue(property, new BypassBacnetConverter()));
-                        } catch (BacNetClientException e) {
-                            System.out.println("      => Error: " + e.getMessage());
                             List<String> attributeNames = client.getPropertyAttributeNames(property);
                             for (String attribute : attributeNames) {
-                                System.out.println("      Attribute " + attribute);
-                                visitor.visit(client.getPropertyAttributeValue(property, attribute, new BypassBacnetConverter()));
+                                visitor.visitAttribute(attribute, client.getPropertyAttributeValue(property, attribute, new BypassBacnetConverter()));
                             }
+                        } catch (BacNetClientException e) {
+                            //System.out.println("      => Error: " + e.getMessage());
                         }
                     }
                 }

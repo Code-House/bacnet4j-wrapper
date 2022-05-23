@@ -72,6 +72,11 @@ class OpenHabConfigurationVisitor implements Visitor {
         return Flag.SKIP;
     }
 
+    @Override
+    public Flag visitAttribute(String attribute, Encodable propertyValue) {
+        return Flag.SKIP;
+    }
+
     private static String openhabType(Property property) {
         switch (property.getType()) {
             case BINARY_INPUT:
