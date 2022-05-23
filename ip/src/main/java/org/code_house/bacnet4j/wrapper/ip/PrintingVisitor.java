@@ -2,15 +2,10 @@ package org.code_house.bacnet4j.wrapper.ip;
 
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.primitive.OctetString;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Stack;
 import org.code_house.bacnet4j.wrapper.api.Device;
 import org.code_house.bacnet4j.wrapper.api.Property;
 
 import java.io.PrintStream;
-import org.code_house.bacnet4j.wrapper.api.Type;
 
 class PrintingVisitor implements Visitor {
 
@@ -38,11 +33,9 @@ class PrintingVisitor implements Visitor {
 
     @Override
     public Flag visit(Property property) {
-        output.println(
-            String.format("          => Type %s id: %d",
-                property.getType().name(),
-                property.getId()
-            )
+        output.printf("          => Type %s id: %d%n",
+            property.getType().name(),
+            property.getId()
         );
         output.println("             Metadata");
         output.println("               Name: " + property.getName());
@@ -54,14 +47,23 @@ class PrintingVisitor implements Visitor {
 
     @Override
     public Flag visit(Encodable propertyValue) {
-        output.println(
-            String.format("             Present value %s, type: %s",
-                propertyValue,
-                propertyValue != null ? propertyValue.getClass().getName() : "<null>"
-            )
+        output.printf("             Present value %s, type: %s%n",
+            propertyValue,
+            propertyValue != null ? propertyValue.getClass().getName() : "<null>"
         );
 
         return Flag.SKIP;
     }
 
+
+    @Override
+    public Flag visitAttribute(String attribute, Encodable propertyValue) {
+        output.printf("             Attribute '%s' value %s, type: %s%n",
+            attribute,
+            propertyValue,
+            propertyValue != null ? propertyValue.getClass().getName() : "<null>"
+        );
+
+        return Flag.SKIP;
+    }
 }

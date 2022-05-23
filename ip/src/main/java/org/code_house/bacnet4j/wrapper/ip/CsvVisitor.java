@@ -76,4 +76,8 @@ class CsvVisitor implements Visitor {
         return Flag.SKIP;
     }
 
+    @Override
+    public Flag visitAttribute(String attribute, Encodable propertyValue) {
+        return Flag.SKIP;
+    }
 }
