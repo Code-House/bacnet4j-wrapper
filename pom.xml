@@ -7,7 +7,6 @@
         <groupId>org.sonatype.oss</groupId>
         <artifactId>oss-parent</artifactId>
         <version>9</version>
-        <relativePath />
     </parent>
 
     <groupId>org.code-house.bacnet4j</groupId>

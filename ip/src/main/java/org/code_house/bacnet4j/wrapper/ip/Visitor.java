@@ -17,6 +17,4 @@ public interface Visitor {
 
     Flag visit(Encodable propertyValue);
 
-    Flag visitAttribute(String attribute, Encodable propertyValue);
-
 }

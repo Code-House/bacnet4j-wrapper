@@ -100,6 +100,7 @@ public abstract class BacNetClientBase implements BacNetClient {
 
             return (T) getJavaValue(presentValue.getValue(), converter);
         } catch (BACnetException e) {
+            e.printStackTrace();
             throw new BacNetClientException("Could not get property value", e);
         }
     }
@@ -111,14 +112,8 @@ public abstract class BacNetClientBase implements BacNetClient {
                 new ReadPropertyRequest(new ObjectIdentifier(property.getType().getBacNetType(), property.getId()),
                     PropertyIdentifier.propertyList)).get();
 
-            if (answer.getValue() instanceof SequenceOf) {
-                List<String> attributes = new ArrayList<>();
-                for (PropertyIdentifier identifier : ((SequenceOf<PropertyIdentifier>) answer.getValue())) {
-                    attributes.add(identifier.toString());
-                }
-                return attributes;
-            }
-            logger.warn("Unexpected answer for object attribute list {}, forcing empty results", answer.getValue());
+            System.out.println(answer);
+
             return Collections.emptyList();
         } catch (BACnetException e) {
             throw new BacNetClientException("Could not get property value", e);
