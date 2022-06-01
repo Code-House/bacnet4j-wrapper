@@ -29,6 +29,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.code_house.bacnet4j.wrapper.api.BacNetClientBase;
 import org.code_house.bacnet4j.wrapper.api.BacNetClientException;
+import org.code_house.bacnet4j.wrapper.api.BacNetObject;
 import org.code_house.bacnet4j.wrapper.api.BaseDiscoveryCallable;
 import org.code_house.bacnet4j.wrapper.api.Device;
 import org.code_house.bacnet4j.wrapper.api.DeviceDiscoveryListener;
@@ -106,21 +107,21 @@ public class BacNetIpClient extends BacNetClientBase {
     }
 
     @Override
-    protected Property createProperty(Device device, int instance, Type type, SequenceOf<ReadAccessResult> readAccessResults) {
+    protected BacNetObject createObject(Device device, int instance, Type type, SequenceOf<ReadAccessResult> readAccessResults) {
         if (readAccessResults.size() == 1) {
             SequenceOf<Result> results = readAccessResults.get(0).getListOfResults();
             if (results.size() == 4) {
                 String name = results.get(2).toString();
                 String units = results.get(1).toString();
                 String description = results.get(3).toString();
-                return new Property(device, instance, name, description, units, type);
+                return new BacNetObject(device, instance, type, name, description, units);
             }
             throw new IllegalStateException("Unsupported response structure " + readAccessResults);
         }
         String name = getReadValue(readAccessResults.get(2));
         String units = getReadValue(readAccessResults.get(1));
         String description = getReadValue(readAccessResults.get(3));
-        return new Property(device, instance, name, description, units, type);
+        return new BacNetObject(device, instance, type, name, description, units);
     }
 
     private String getReadValue(ReadAccessResult readAccessResult) {

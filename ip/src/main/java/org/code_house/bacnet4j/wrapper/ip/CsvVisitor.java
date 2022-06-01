@@ -22,6 +22,7 @@ package org.code_house.bacnet4j.wrapper.ip;
 import com.serotonin.bacnet4j.npdu.NetworkUtils;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.primitive.OctetString;
+import org.code_house.bacnet4j.wrapper.api.BacNetObject;
 import org.code_house.bacnet4j.wrapper.api.Device;
 import org.code_house.bacnet4j.wrapper.api.Property;
 
@@ -47,21 +48,21 @@ class CsvVisitor implements Visitor {
 
     @Override
     public Flag visit(Device device) {
-        return Flag.CONTNUE;
+        return Flag.CONTINUE;
     }
 
     @Override
-    public Flag visit(Property property) {
-        Device device = property.getDevice();
+    public Flag visit(BacNetObject object) {
+        Device device = object.getDevice();
         String line = new StringJoiner(",")
                 .add("" + device.getNetworkNumber())
                 .add(quote(NetworkUtils.toString(new OctetString(device.getAddress()))))
                 .add("" + device.getInstanceNumber())
-                .add(property.getType().getName())
-                .add("" + property.getId())
-                .add(quote(property.getName()))
-                .add(quote(property.getUnits()))
-                .add(quote(property.getDescription()))
+                .add(object.getType().getName())
+                .add("" + object.getId())
+                //.add(quote(object.getName()))
+                //.add(quote(object.getUnits()))
+                //.add(quote(object.getDescription()))
             .toString();
         output.println(line);
         return Flag.SKIP;
@@ -77,7 +78,7 @@ class CsvVisitor implements Visitor {
     }
 
     @Override
-    public Flag visitAttribute(String attribute, Encodable propertyValue) {
+    public Flag visitProperty(String property, Encodable propertyValue) {
         return Flag.SKIP;
     }
 }

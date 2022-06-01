@@ -33,10 +33,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.code_house.bacnet4j.wrapper.api.BacNetClientBase;
 import org.code_house.bacnet4j.wrapper.api.BacNetClientException;
+import org.code_house.bacnet4j.wrapper.api.BacNetObject;
 import org.code_house.bacnet4j.wrapper.api.BaseDiscoveryCallable;
 import org.code_house.bacnet4j.wrapper.api.Device;
 import org.code_house.bacnet4j.wrapper.api.DeviceDiscoveryListener;
-import org.code_house.bacnet4j.wrapper.api.Property;
 import org.code_house.bacnet4j.wrapper.api.Type;
 import org.code_house.bacnet4j.wrapper.api.util.ForwardingAdapter;
 
@@ -97,13 +97,13 @@ public class BacNetMstpClient extends BacNetClientBase {
     }
 
     @Override
-    protected Property createProperty(Device device, int instance, Type type, SequenceOf<ReadAccessResult> readAccessResults) {
+    protected BacNetObject createObject(Device device, int instance, Type type, SequenceOf<ReadAccessResult> readAccessResults) {
         SequenceOf<Result> result = readAccessResults.get(0).getListOfResults();
         String name = result.get(2).toString();
         String units = result.get(1).toString();
         String description = result.get(3).toString();
 
-        return new Property(device, instance, name, description, units, type);
+        return new BacNetObject(device, instance, type, name, description, units);
     }
 
     private static DefaultTransport createTransport(MstpNetwork network, int timeout, int segTimeout) {

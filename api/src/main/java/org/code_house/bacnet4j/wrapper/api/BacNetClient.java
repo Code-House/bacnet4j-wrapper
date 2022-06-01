@@ -19,15 +19,10 @@
  */
 package org.code_house.bacnet4j.wrapper.api;
 
-import com.serotonin.bacnet4j.exception.BACnetException;
-import com.serotonin.bacnet4j.service.acknowledgement.ReadPropertyAck;
-import com.serotonin.bacnet4j.service.confirmed.ReadPropertyRequest;
-import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
-import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * Definition of bacnet client
@@ -46,17 +41,84 @@ public interface BacNetClient {
 
     Set<Device> discoverDevices(DeviceDiscoveryListener discoveryListener, long timeout);
 
-    List<Property> getDeviceProperties(Device device);
-    List<Object> getPropertyValues(List<Property> properties);
+    /**
+     * This method is deprecated in favor of properly named {{@link #getDeviceObjects(Device)}}.
+     *
+     * @param device Device.
+     * @return List of bacnet objects (properties).
+     */
+    @Deprecated
+    default List<Property> getDeviceProperties(Device device) {
+        return getDeviceObjects(device).stream()
+            .map(obj -> new Property(obj.getDevice(), obj.getId(), obj.getType()))
+            .collect(Collectors.toList());
+    }
 
-    <T> T getPropertyValue(Property property, BacNetToJavaConverter<T> converter);
+    /**
+     * Retrieve device objects.
+     *
+     * @param device Device.
+     * @return Object.
+     */
+    List<BacNetObject> getDeviceObjects(Device device);
 
-    <T> void setPropertyValue(Property property, T value, JavaToBacNetConverter<T> converter);
-    <T> void setPropertyValue(Property property, T value, JavaToBacNetConverter<T> converter, int priority);
-    <T> void setPropertyValue(Property property, T value, JavaToBacNetConverter<T> converter, Priority priority);
+    /**
+     * Retrieves present values for given properties.
+     *
+     * @param properties Property list.
+     * @return Present values.
+     * @deprecated Please migrate code usage to {{@link #getPresentValues(List)}}
+     */
+    @Deprecated
+    default List<Object> getPropertyValues(List<Property> properties) {
+        return getPresentValues(properties.stream()
+            .map(Property::toBacNetObject)
+            .collect(Collectors.toList())
+        );
+    }
 
 
-    List<String> getPropertyAttributeNames(Property property);
-    <T> T getPropertyAttributeValue(Property property, String attribute, BacNetToJavaConverter<T> converter);
+    /**
+     * Retrieve list with present values of passed objects.
+     *
+     * @param objects
+     * @return
+     */
+    List<java.lang.Object> getPresentValues(List<BacNetObject> objects);
+
+    // fetch present value
+    @Deprecated
+    default <T> T getPropertyValue(Property property, BacNetToJavaConverter<T> converter) {
+        return getPresentValue(property.toBacNetObject(), converter);
+    }
+    <T> T getPresentValue(BacNetObject object, BacNetToJavaConverter<T> converter);
+
+    @Deprecated
+    default <T> void setPropertyValue(Property property, T value, JavaToBacNetConverter<T> converter) {
+        setPresentValue(property.toBacNetObject(), value, converter);
+    }
+
+    @Deprecated
+    default <T> void setPropertyValue(Property property, T value, JavaToBacNetConverter<T> converter, int priority) {
+        setPresentValue(property.toBacNetObject(), value, converter, priority);
+    }
+
+    @Deprecated
+    default <T> void setPropertyValue(Property property, T value, JavaToBacNetConverter<T> converter, Priority priority) {
+        setPresentValue(property.toBacNetObject(), value, converter, priority);
+    }
+
+    <T> void setPresentValue(BacNetObject object, T value, JavaToBacNetConverter<T> converter);
+    <T> void setPresentValue(BacNetObject object, T value, JavaToBacNetConverter<T> converter, int priority);
+    <T> void setPresentValue(BacNetObject object, T value, JavaToBacNetConverter<T> converter, Priority priority);
+
+    <T> void setObjectPropertyValue(BacNetObject object, String property, T value, JavaToBacNetConverter<T> converter);
+    <T> void setObjectPropertyValue(BacNetObject object, String property, T value, JavaToBacNetConverter<T> converter, int priority);
+    <T> void setObjectPropertyValue(BacNetObject object, String property, T value, JavaToBacNetConverter<T> converter, Priority priority);
+
+    List<String> getObjectPropertyNames(BacNetObject object);
+    <T> T getObjectPropertyValue(BacNetObject object, String attribute, BacNetToJavaConverter<T> converter);
+
+    List<Object> getObjectAttributeValues(BacNetObject object, List<String> properties);
 
 }

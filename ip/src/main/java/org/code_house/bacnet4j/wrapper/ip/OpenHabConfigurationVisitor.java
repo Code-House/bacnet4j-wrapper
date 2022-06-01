@@ -20,6 +20,7 @@
 package org.code_house.bacnet4j.wrapper.ip;
 
 import com.serotonin.bacnet4j.type.Encodable;
+import org.code_house.bacnet4j.wrapper.api.BacNetObject;
 import org.code_house.bacnet4j.wrapper.api.Device;
 import org.code_house.bacnet4j.wrapper.api.Property;
 
@@ -48,20 +49,20 @@ class OpenHabConfigurationVisitor implements Visitor {
     @Override
     public Flag visit(Device device) {
         this.device = device;
-        return Flag.CONTNUE;
+        return Flag.CONTINUE;
     }
 
     @Override
-    public Flag visit(Property property) {
+    public Flag visit(BacNetObject object) {
         output.println(format("%s %s \"%s\" %s %s {bacnet=\"device=%d,type=%s,id=%d\"}",
-            openhabType(property),
-            openhabName(property),
-            openhabLabel(property),
-            groups ? openhabGroups(property) : "",
-            tags ? openhabTags(property) : "",
+            openhabType(object),
+            openhabName(object),
+            openhabLabel(object),
+            groups ? openhabGroups(object) : "",
+            tags ? openhabTags(object) : "",
             device.getInstanceNumber(),
-            property.getType().getName(),
-            property.getId()
+            object.getType().getName(),
+            object.getId()
         ));
 
         return Flag.SKIP;
@@ -73,12 +74,12 @@ class OpenHabConfigurationVisitor implements Visitor {
     }
 
     @Override
-    public Flag visitAttribute(String attribute, Encodable propertyValue) {
+    public Flag visitProperty(String property, Encodable propertyValue) {
         return Flag.SKIP;
     }
 
-    private static String openhabType(Property property) {
-        switch (property.getType()) {
+    private static String openhabType(BacNetObject object) {
+        switch (object.getType()) {
             case BINARY_INPUT:
             case BINARY_OUTPUT:
             case BINARY_VALUE:
@@ -88,32 +89,32 @@ class OpenHabConfigurationVisitor implements Visitor {
         return "Number";
     }
 
-    private static String openhabName(Property property) {
-        return property.getName().trim()
+    private static String openhabName(BacNetObject object) {
+        return object.getName().trim()
             .replaceAll("[^a-zA-Z0-9\\s]", "")
             .replaceAll("\\s", "_")
             // in the end - we replace non ascii characters
             .replaceAll("[^\\x00-\\x7F]", "_");
     }
 
-    private static String openhabLabel(Property property) {
-        return property.getName();
+    private static String openhabLabel(BacNetObject object) {
+        return object.getName();
     }
 
-    private String openhabGroups(Property property) {
+    private String openhabGroups(BacNetObject object) {
         return "(" +
             "BacNet" + "," +
-            "BacNet_" + property.getUnits()  + "," +
+            "BacNet_" + object.getUnits()  + "," +
             "Device_" + device.getInstanceNumber() + "," +
-            openhabName(property) + "_" + property.getId() + "," +
-            property.getType().getName() + "_" + property.getId() +
+            openhabName(object) + "_" + object.getId() + "," +
+            object.getType().getName() + "_" + object.getId() +
         ")";
     }
 
-    private Object openhabTags(Property property) {
+    private Object openhabTags(BacNetObject object) {
         return "[" +
             "\"Device_" + device.getInstanceNumber() + "\"," +
-            "\"" + property.getType().getName() +"\"" +
+            "\"" + object.getType().getName() +"\"" +
         "]";
     }
 }

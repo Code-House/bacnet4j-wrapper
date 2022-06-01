@@ -20,9 +20,9 @@
 package org.code_house.bacnet4j.wrapper.ip;
 
 import org.code_house.bacnet4j.wrapper.api.BacNetClientException;
+import org.code_house.bacnet4j.wrapper.api.BacNetObject;
 import org.code_house.bacnet4j.wrapper.api.BypassBacnetConverter;
 import org.code_house.bacnet4j.wrapper.api.Device;
-import org.code_house.bacnet4j.wrapper.api.Property;
 
 import java.net.InetAddress;
 import java.net.InterfaceAddress;
@@ -110,24 +110,24 @@ public class NetworkProgram {
     }
 
     private void visit(BacNetIpClient client, Device device) {
-        if (visitor.visit(device) == Visitor.Flag.CONTNUE) {
-            List<Property> properties = client.getDeviceProperties(device);
-            if (properties.isEmpty()) {
-                System.out.println("      => No properties found");
+        if (visitor.visit(device) == Visitor.Flag.CONTINUE) {
+            List<BacNetObject> objects = client.getDeviceObjects(device);
+            if (objects.isEmpty()) {
+                System.out.println("      => No objects found");
             } else {
-                for (Property property : properties) {
-                    if (property.getType() == Type.DEVICE) {
-                        Device subDevice = new Device(property.getId(), device.getBacNet4jAddress());
+                for (BacNetObject object : objects) {
+                    if (object.getType() == Type.DEVICE) {
+                        Device subDevice = new Device(object.getId(), device.getBacNet4jAddress());
                         if (!device.equals(subDevice)) {
                             visit(client, subDevice);
                         }
                     }
-                    if (visitor.visit(property) == Visitor.Flag.CONTNUE) {
+                    if (visitor.visit(object) == Visitor.Flag.CONTINUE) {
                         try {
-                            visitor.visit(client.getPropertyValue(property, new BypassBacnetConverter()));
-                            List<String> attributeNames = client.getPropertyAttributeNames(property);
-                            for (String attribute : attributeNames) {
-                                visitor.visitAttribute(attribute, client.getPropertyAttributeValue(property, attribute, new BypassBacnetConverter()));
+                            visitor.visit(client.getPresentValue(object, new BypassBacnetConverter()));
+                            List<String> properties = client.getObjectPropertyNames(object);
+                            for (String property : properties) {
+                                visitor.visitProperty(property, client.getObjectPropertyValue(object, property, new BypassBacnetConverter()));
                             }
                         } catch (BacNetClientException e) {
                             //System.out.println("      => Error: " + e.getMessage());
