@@ -55,10 +55,6 @@ public class BacNetMstpClient extends BacNetClientBase {
         super(new LocalDevice(deviceId, createTransport(network, timeout, segTimeout)));
     }
 
-    public BacNetMstpClient(String port, int deviceId) throws Exception {
-        this(new JsscMstpNetworkBuilder().withSerialPort(port).build(), deviceId);
-    }
-
     @Override
     public CompletableFuture<Set<Device>> doDiscoverDevices(final DeviceDiscoveryListener discoveryListener, final long timeout) {
         BaseDiscoveryCallable callable = new MstpDiscoveryCallable(discoveryListener, localDevice, timeout, timeout / 10);
