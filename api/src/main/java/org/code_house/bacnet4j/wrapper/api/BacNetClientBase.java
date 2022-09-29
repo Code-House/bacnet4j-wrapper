@@ -164,7 +164,7 @@ public abstract class BacNetClientBase implements BacNetClient {
     }
 
     @Override
-    public List<java.lang.Object> getPresentValues(List<BacNetObject> objects) {
+    public List<Object> getPresentValues(List<BacNetObject> objects) {
         BypassBacnetConverter converter = new BypassBacnetConverter();
         Device device = objects.get(0).getDevice();
         List<java.lang.Object> values = new ArrayList<>();
@@ -179,9 +179,9 @@ public abstract class BacNetClientBase implements BacNetClient {
                     specifications.clear();
                     SequenceOf<ReadAccessResult> listOfReadAccessResults = readValues.getListOfReadAccessResults();
                     for (int index = 0; index < listOfReadAccessResults.getCount(); index++) {
-                        ReadAccessResult result = listOfReadAccessResults.get(index + 1);
+                        ReadAccessResult result = listOfReadAccessResults.get(index);
                         logger.info("Reading property {} value from {}", objects.get(propertyIndex), result.getListOfResults());
-                        values.add(getJavaValue(result.getListOfResults().get(1).getReadResult().getDatum(), converter));
+                        values.add(getJavaValue(result.getListOfResults().get(0).getReadResult().getDatum(), converter));
                     }
                 } catch (BACnetException e) {
                     throw new BacNetClientException("Unable to read properties.", e);
