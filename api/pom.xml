@@ -22,6 +22,7 @@
         </osgi.import>
         <osgi.export>
             org.code_house.bacnet4j.wrapper.api.*,
+            org.code_house.bacnet4j.wrapper.device.*,
             com.serotonin.bacnet4j.*;;version=${bacnet4j.version},
             <!-- rexport sero-* packages -->
             lohbihler.scheduler;version=${sero-scheduler.version},

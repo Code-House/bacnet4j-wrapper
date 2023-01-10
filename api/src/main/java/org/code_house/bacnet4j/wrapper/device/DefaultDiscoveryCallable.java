@@ -17,29 +17,30 @@
  * along with Foobar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.code_house.bacnet4j.wrapper.mstp;
+package org.code_house.bacnet4j.wrapper.device;
 
+import com.serotonin.bacnet4j.LocalDevice;
+import com.serotonin.bacnet4j.RemoteDevice;
 import org.code_house.bacnet4j.wrapper.api.BaseDiscoveryCallable;
 import org.code_house.bacnet4j.wrapper.api.Device;
 import org.code_house.bacnet4j.wrapper.api.DeviceDiscoveryListener;
-import com.serotonin.bacnet4j.LocalDevice;
-import com.serotonin.bacnet4j.RemoteDevice;
-import org.code_house.bacnet4j.wrapper.device.mstp.MstpDevice;
 
-/**
- * Callable which creates IP devices - to be used with IP clients.
- *
- * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
- */
-public class MstpDiscoveryCallable extends BaseDiscoveryCallable {
+public class DefaultDiscoveryCallable extends BaseDiscoveryCallable {
 
-    public MstpDiscoveryCallable(DeviceDiscoveryListener listener, LocalDevice localDevice, long timeout, long sleep) {
-        super(listener, localDevice, timeout, sleep);
-    }
+  private final DeviceFactory deviceFactory;
 
-    @Override
-    protected Device createDevice(RemoteDevice remoteDevice) {
-        return new MstpDevice(remoteDevice.getInstanceNumber(), remoteDevice.getAddress());
-    }
+  public DefaultDiscoveryCallable(DeviceDiscoveryListener listener, LocalDevice localDevice, long timeout, long sleep) {
+    this(new DefaultDeviceFactory(), listener, localDevice, timeout, sleep);
+  }
+
+  public DefaultDiscoveryCallable(DeviceFactory deviceFactory, DeviceDiscoveryListener listener, LocalDevice localDevice, long timeout, long sleep) {
+    super(listener, localDevice, timeout, sleep);
+    this.deviceFactory = deviceFactory;
+  }
+
+  @Override
+  protected Device createDevice(RemoteDevice remoteDevice) {
+    return deviceFactory.createDevice(remoteDevice);
+  }
 
 }

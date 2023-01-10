@@ -41,6 +41,7 @@ import com.serotonin.bacnet4j.npdu.ip.IpNetwork;
 import com.serotonin.bacnet4j.npdu.ip.IpNetworkBuilder;
 import com.serotonin.bacnet4j.service.unconfirmed.WhoIsRequest;
 import com.serotonin.bacnet4j.transport.DefaultTransport;
+import org.code_house.bacnet4j.wrapper.device.DefaultDiscoveryCallable;
 
 /**
  * Implementation of bacnet client based on IpNetwork/UDP transport.
@@ -71,7 +72,7 @@ public class BacNetIpClient extends BacNetClientBase {
 
     @Override
     public CompletableFuture<Set<Device>> doDiscoverDevices(final DeviceDiscoveryListener discoveryListener, final long timeout) {
-        BaseDiscoveryCallable callable = new IpDiscoveryCallable(discoveryListener, localDevice, timeout, timeout / 10);
+        BaseDiscoveryCallable callable = new DefaultDiscoveryCallable(discoveryListener, localDevice, timeout, timeout / 10);
         ForwardingAdapter listener = new ForwardingAdapter(executor, callable);
         localDevice.getEventHandler().addListener(listener);
         localDevice.sendGlobalBroadcast(new WhoIsRequest());
@@ -88,7 +89,7 @@ public class BacNetIpClient extends BacNetClientBase {
 
     @Override
     public Set<Device> discoverDevices(final DeviceDiscoveryListener discoveryListener, final long timeout) {
-        BaseDiscoveryCallable callable = new IpDiscoveryCallable(discoveryListener, localDevice, timeout, timeout / 10);
+        BaseDiscoveryCallable callable = new DefaultDiscoveryCallable(discoveryListener, localDevice, timeout, timeout / 10);
         ForwardingAdapter listener = new ForwardingAdapter(executor, callable);
         try {
             localDevice.getEventHandler().addListener(listener);

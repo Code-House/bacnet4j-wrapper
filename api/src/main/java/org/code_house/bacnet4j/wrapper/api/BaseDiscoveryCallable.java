@@ -128,6 +128,9 @@ public abstract class BaseDiscoveryCallable extends DeviceEventAdapter implement
         if (d.getName() != null && !d.getName().isEmpty()) {
             device.setName(d.getModelName());
         }
+        if (!d.getServicesSupported().isReadPropertyMultiple()) {
+            device.setReadPropertyMultiple(false);
+        }
         devices.add(device);
         this.listener.deviceDiscovered(device);
     }

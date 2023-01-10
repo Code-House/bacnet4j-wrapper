@@ -4,9 +4,9 @@ import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.primitive.OctetString;
 import org.code_house.bacnet4j.wrapper.api.BacNetObject;
 import org.code_house.bacnet4j.wrapper.api.Device;
-import org.code_house.bacnet4j.wrapper.api.Property;
 
 import java.io.PrintStream;
+import org.code_house.bacnet4j.wrapper.device.ip.IpDevice;
 
 class PrintingVisitor implements Visitor {
 
@@ -18,7 +18,7 @@ class PrintingVisitor implements Visitor {
 
     @Override
     public Flag visit(Device device) {
-        output.println("  => Device id " + device.getInstanceNumber());
+        output.println("  => Device id " + device.getInstanceNumber() + " (" + device.getClass().getSimpleName() + ")");
         output.println("     Metadata");
         if (device instanceof IpDevice) {
             IpDevice ipDevice = (IpDevice) device;

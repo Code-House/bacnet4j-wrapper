@@ -17,30 +17,17 @@
  * along with Foobar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.code_house.bacnet4j.wrapper.ip;
+package org.code_house.bacnet4j.wrapper.device;
 
-import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.RemoteDevice;
-import org.code_house.bacnet4j.wrapper.api.BaseDiscoveryCallable;
 import org.code_house.bacnet4j.wrapper.api.Device;
-import org.code_house.bacnet4j.wrapper.api.DeviceDiscoveryListener;
-import org.code_house.bacnet4j.wrapper.device.ip.IpDevice;
 
 /**
- * Callable which creates IP devices - to be used with IP clients.
- *
- * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
+ * Detection logic which can translate bacnet4j devices into representation of devices required by
+ * wrapper.
  */
-@Deprecated
-public class IpDiscoveryCallable extends BaseDiscoveryCallable {
+public interface DeviceFactory {
 
-    public IpDiscoveryCallable(DeviceDiscoveryListener listener, LocalDevice localDevice, long timeout, long sleep) {
-        super(listener, localDevice, timeout, sleep);
-    }
-
-    @Override
-    protected Device createDevice(RemoteDevice remoteDevice) {
-        return new IpDevice(remoteDevice.getInstanceNumber(), remoteDevice.getAddress());
-    }
+  Device createDevice(RemoteDevice remoteDevice);
 
 }

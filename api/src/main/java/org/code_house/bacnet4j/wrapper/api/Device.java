@@ -40,6 +40,7 @@ public class Device {
     private String modelName = "";
     private String vendorName = "";
     private String name = "";
+    private boolean readMultiple;
 
 
     public Device(int instanceNumber, byte[] address, int networkNumber) {
@@ -92,6 +93,14 @@ public class Device {
         return name;
     }
 
+    public void setReadPropertyMultiple(boolean readMultiple) {
+        this.readMultiple = readMultiple;
+    }
+
+    public boolean isReadMultiple() {
+        return readMultiple;
+    }
+
     public Address getBacNet4jAddress() {
         return new Address(networkNumber, address);
     }
@@ -114,7 +123,8 @@ public class Device {
             && getNetworkNumber() == device.getNetworkNumber()
             && Arrays.equals(getAddress(), device.getAddress()) && Objects.equals(getModelName(), device.getModelName())
             && Objects.equals(getVendorName(), device.getVendorName())
-            && Objects.equals(getName(), device.getName());
+            && Objects.equals(getName(), device.getName())
+            && Objects.equals(isReadMultiple(), device.isReadMultiple());
     }
 
     @Override
@@ -123,7 +133,8 @@ public class Device {
             getNetworkNumber(),
             getModelName(),
             getVendorName(),
-            getName()
+            getName(),
+            isReadMultiple()
         );
         result = 31 * result + Arrays.hashCode(getAddress());
         return result;

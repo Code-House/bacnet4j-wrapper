@@ -17,24 +17,24 @@
  * along with Foobar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.code_house.bacnet4j.wrapper.mstp;
+package org.code_house.bacnet4j.wrapper.device;
 
-import org.code_house.bacnet4j.wrapper.api.Device;
+import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.type.constructed.Address;
+import org.code_house.bacnet4j.wrapper.api.Device;
+import org.code_house.bacnet4j.wrapper.device.ip.IpDevice;
+import org.code_house.bacnet4j.wrapper.device.mstp.MstpDevice;
 
-/**
- * Device variant which assumes MSTP network operation,
- *
- * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
- */
-public class MstpDevice extends Device {
+public class DefaultDeviceFactory implements DeviceFactory {
 
-    public MstpDevice(int instanceNumber, byte[] address, int networkNumber) {
-        super(instanceNumber, address, networkNumber);
+  @Override
+  public Device createDevice(RemoteDevice remoteDevice) {
+    Address address = remoteDevice.getAddress();
+    byte[] bytes = address.getMacAddress().getBytes();
+    if (bytes.length == 1) {
+      return new MstpDevice(remoteDevice.getInstanceNumber(), address);
     }
-
-    public MstpDevice(int instanceNumber, Address address) {
-        super(instanceNumber, address);
-    }
+    return new IpDevice(remoteDevice.getInstanceNumber(), address);
+  }
 
 }

@@ -17,29 +17,24 @@
  * along with Foobar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.code_house.bacnet4j.wrapper.mstp;
+package org.code_house.bacnet4j.wrapper.device.mstp;
 
-import org.code_house.bacnet4j.wrapper.api.BaseDiscoveryCallable;
 import org.code_house.bacnet4j.wrapper.api.Device;
-import org.code_house.bacnet4j.wrapper.api.DeviceDiscoveryListener;
-import com.serotonin.bacnet4j.LocalDevice;
-import com.serotonin.bacnet4j.RemoteDevice;
-import org.code_house.bacnet4j.wrapper.device.mstp.MstpDevice;
+import com.serotonin.bacnet4j.type.constructed.Address;
 
 /**
- * Callable which creates IP devices - to be used with IP clients.
+ * Device variant which assumes MSTP network operation,
  *
  * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
  */
-public class MstpDiscoveryCallable extends BaseDiscoveryCallable {
+public class MstpDevice extends Device {
 
-    public MstpDiscoveryCallable(DeviceDiscoveryListener listener, LocalDevice localDevice, long timeout, long sleep) {
-        super(listener, localDevice, timeout, sleep);
+    public MstpDevice(int instanceNumber, byte[] address, int networkNumber) {
+        super(instanceNumber, address, networkNumber);
     }
 
-    @Override
-    protected Device createDevice(RemoteDevice remoteDevice) {
-        return new MstpDevice(remoteDevice.getInstanceNumber(), remoteDevice.getAddress());
+    public MstpDevice(int instanceNumber, Address address) {
+        super(instanceNumber, address);
     }
 
 }
