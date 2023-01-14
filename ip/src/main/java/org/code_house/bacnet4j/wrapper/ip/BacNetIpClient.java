@@ -19,29 +19,19 @@
  */
 package org.code_house.bacnet4j.wrapper.ip;
 
-import com.serotonin.bacnet4j.type.constructed.ReadAccessResult;
-import com.serotonin.bacnet4j.type.constructed.ReadAccessResult.Result;
-import com.serotonin.bacnet4j.type.constructed.SequenceOf;
-import java.util.Collections;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import org.code_house.bacnet4j.wrapper.api.BacNetClientBase;
-import org.code_house.bacnet4j.wrapper.api.BacNetClientException;
-import org.code_house.bacnet4j.wrapper.api.BacNetObject;
-import org.code_house.bacnet4j.wrapper.api.BaseDiscoveryCallable;
-import org.code_house.bacnet4j.wrapper.api.Device;
-import org.code_house.bacnet4j.wrapper.api.DeviceDiscoveryListener;
-import org.code_house.bacnet4j.wrapper.api.Property;
-import org.code_house.bacnet4j.wrapper.api.Type;
-import org.code_house.bacnet4j.wrapper.api.util.ForwardingAdapter;
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.npdu.ip.IpNetwork;
 import com.serotonin.bacnet4j.npdu.ip.IpNetworkBuilder;
-import com.serotonin.bacnet4j.service.unconfirmed.WhoIsRequest;
+import com.serotonin.bacnet4j.npdu.ip.IpNetworkUtils;
 import com.serotonin.bacnet4j.transport.DefaultTransport;
-import org.code_house.bacnet4j.wrapper.device.DefaultDiscoveryCallable;
+import com.serotonin.bacnet4j.type.constructed.ReadAccessResult;
+import com.serotonin.bacnet4j.type.constructed.ReadAccessResult.Result;
+import com.serotonin.bacnet4j.type.constructed.SequenceOf;
+import com.serotonin.bacnet4j.type.primitive.OctetString;
+import org.code_house.bacnet4j.wrapper.api.BacNetClientBase;
+import org.code_house.bacnet4j.wrapper.api.BacNetObject;
+import org.code_house.bacnet4j.wrapper.api.Device;
+import org.code_house.bacnet4j.wrapper.api.Type;
 
 /**
  * Implementation of bacnet client based on IpNetwork/UDP transport.
@@ -70,41 +60,20 @@ public class BacNetIpClient extends BacNetClientBase {
         this(new IpNetworkBuilder().withBroadcast(broadcast, 24).build(), deviceId);
     }
 
-    @Override
-    public CompletableFuture<Set<Device>> doDiscoverDevices(final DeviceDiscoveryListener discoveryListener, final long timeout) {
-        BaseDiscoveryCallable callable = new DefaultDiscoveryCallable(discoveryListener, localDevice, timeout, timeout / 10);
-        ForwardingAdapter listener = new ForwardingAdapter(executor, callable);
-        localDevice.getEventHandler().addListener(listener);
-        localDevice.sendGlobalBroadcast(new WhoIsRequest());
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                return callable.call();
-            } catch (Exception e) {
-                throw new BacNetClientException("Could not complete discovery task", e);
-            }
-        }, executor).whenComplete((devices, throwable) -> {
-            localDevice.getEventHandler().removeListener(listener);
-        });
-    }
-
-    @Override
-    public Set<Device> discoverDevices(final DeviceDiscoveryListener discoveryListener, final long timeout) {
-        BaseDiscoveryCallable callable = new DefaultDiscoveryCallable(discoveryListener, localDevice, timeout, timeout / 10);
-        ForwardingAdapter listener = new ForwardingAdapter(executor, callable);
-        try {
-            localDevice.getEventHandler().addListener(listener);
-            Future<Set<Device>> future = executor.submit(callable);
-            localDevice.sendGlobalBroadcast(new WhoIsRequest());
-            // this will block for at least timeout milliseconds
-            return future.get();
-        } catch (ExecutionException e) {
-            logger.error("Device discovery have failed", e);
-        } catch (InterruptedException e) {
-            logger.error("Could not discover devices due to timeout", e);
-        } finally {
-            localDevice.getEventHandler().removeListener(listener);
-        }
-        return Collections.emptySet();
+    /**
+     * Explicitly register a network router which is known beforehand.
+     *
+     * This method is introduced for situations where network is fixed and all details are known to
+     * caller. Adding network router early on allow to communicate other networks without pre-flight
+     * discovery requests to populate routing table.
+     *
+     * @param network Network number.
+     * @param ipAddress Router ip address.
+     * @param port Router port.
+     */
+    public void addNetworkRouter(int network, String ipAddress, int port) {
+        OctetString address = IpNetworkUtils.toOctetString(ipAddress, port);
+        this.localDevice.getNetwork().getTransport().addNetworkRouter(network, address);
     }
 
     @Override

@@ -21,24 +21,15 @@ package org.code_house.bacnet4j.wrapper.mstp;
 
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.npdu.mstp.MstpNetwork;
-import com.serotonin.bacnet4j.service.unconfirmed.WhoIsRequest;
 import com.serotonin.bacnet4j.transport.DefaultTransport;
 import com.serotonin.bacnet4j.type.constructed.ReadAccessResult;
 import com.serotonin.bacnet4j.type.constructed.ReadAccessResult.Result;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
-import java.util.Collections;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import org.code_house.bacnet4j.wrapper.api.BacNetClientBase;
-import org.code_house.bacnet4j.wrapper.api.BacNetClientException;
 import org.code_house.bacnet4j.wrapper.api.BacNetObject;
-import org.code_house.bacnet4j.wrapper.api.BaseDiscoveryCallable;
 import org.code_house.bacnet4j.wrapper.api.Device;
-import org.code_house.bacnet4j.wrapper.api.DeviceDiscoveryListener;
 import org.code_house.bacnet4j.wrapper.api.Type;
-import org.code_house.bacnet4j.wrapper.api.util.ForwardingAdapter;
+import org.code_house.bacnet4j.wrapper.device.mstp.MstpDevice;
 
 /**
  * Implementation of bacnet client based on serial transport.
@@ -52,44 +43,9 @@ public class BacNetMstpClient extends BacNetClientBase {
     }
 
     public BacNetMstpClient(MstpNetwork network, int deviceId, int timeout, int segTimeout) {
-        super(new LocalDevice(deviceId, createTransport(network, timeout, segTimeout)));
-    }
-
-    @Override
-    public CompletableFuture<Set<Device>> doDiscoverDevices(final DeviceDiscoveryListener discoveryListener, final long timeout) {
-        BaseDiscoveryCallable callable = new MstpDiscoveryCallable(discoveryListener, localDevice, timeout, timeout / 10);
-        ForwardingAdapter listener = new ForwardingAdapter(executor, callable);
-        localDevice.getEventHandler().addListener(listener);
-        localDevice.sendGlobalBroadcast(new WhoIsRequest());
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                return callable.call();
-            } catch (Exception e) {
-                throw new BacNetClientException("Could not complete discovery task", e);
-            }
-        }, executor).whenComplete((devices, throwable) -> {
-            localDevice.getEventHandler().removeListener(listener);
-        });
-    }
-
-    @Override
-    public Set<Device> discoverDevices(final DeviceDiscoveryListener discoveryListener, final long timeout) {
-        BaseDiscoveryCallable callable = new MstpDiscoveryCallable(discoveryListener, localDevice, timeout, timeout / 10);
-        ForwardingAdapter listener = new ForwardingAdapter(executor, callable);
-        try {
-            localDevice.getEventHandler().addListener(listener);
-            Future<Set<Device>> future = executor.submit(callable);
-            localDevice.sendGlobalBroadcast(new WhoIsRequest());
-            // this will block for at least timeout milliseconds
-            return future.get();
-        } catch (ExecutionException e) {
-            logger.error("Device discovery have failed", e);
-        } catch (InterruptedException e) {
-            logger.error("Could not discover devices due to timeout", e);
-        } finally {
-            localDevice.getEventHandler().removeListener(listener);
-        }
-        return Collections.emptySet();
+        super(new LocalDevice(deviceId, createTransport(network, timeout, segTimeout)),
+            (remoteDevice) -> new MstpDevice(remoteDevice.getInstanceNumber(), remoteDevice.getAddress())
+        );
     }
 
     @Override
@@ -107,6 +63,6 @@ public class BacNetMstpClient extends BacNetClientBase {
         transport.setTimeout(timeout);
         transport.setSegTimeout(segTimeout);
         return transport;
-}
+    }
 
 }

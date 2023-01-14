@@ -28,56 +28,36 @@ import com.serotonin.bacnet4j.service.confirmed.ReadPropertyRequest;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
-import com.serotonin.bacnet4j.util.DiscoveryUtils;
 import com.serotonin.bacnet4j.util.PropertyReferences;
 import com.serotonin.bacnet4j.util.PropertyValues;
 import com.serotonin.bacnet4j.util.RequestUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import org.code_house.bacnet4j.wrapper.device.DeviceFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Callable responsible for calling collecting discovered devices and also sending discovery notifications.
+ * A discovery event adapter responsible for calling {@link DeviceDiscoveryListener} which is declared
+ * by bacnet4j-wrapper api.
  *
  * @author Łukasz Dywicki &lt;luke@code-house.org&gt;
  */
-public abstract class BaseDiscoveryCallable extends DeviceEventAdapter implements Callable<Set<Device>> {
+public class DiscoveryEventAdapter extends DeviceEventAdapter {
 
-    private final Logger logger = LoggerFactory.getLogger(DiscoveryCallable.class);
+    private final Logger logger = LoggerFactory.getLogger(DiscoveryEventAdapter.class);
 
-    private final DeviceDiscoveryListener listener;
-    private final LocalDevice localDevice;
-    private final long timeout;
-    private final long sleep;
-    private final Set<Device> devices = new LinkedHashSet<>();
-    private Throwable exception;
-
-    public BaseDiscoveryCallable(DeviceDiscoveryListener listener, LocalDevice localDevice, long timeout, long sleep) {
+    protected final DeviceDiscoveryListener listener;
+    protected final DeviceFactory deviceFactory;
+    protected final LocalDevice localDevice;
+    public DiscoveryEventAdapter(DeviceDiscoveryListener listener, DeviceFactory deviceFactory, LocalDevice localDevice) {
         this.listener = listener;
+        this.deviceFactory = deviceFactory;
         this.localDevice = localDevice;
-        this.timeout = timeout;
-        this.sleep = sleep;
     }
 
-    @Override
-    public Set<Device> call() throws Exception {
-        long time = 0;
-        do {
-            time += sleep;
-            Thread.sleep(sleep);
-        } while (time < timeout);
-
-        if (exception != null) {
-            throw new BacNetClientException("Could not finish discovery due to error", exception);
-        }
-        return devices;
-    }
-
-    @Override
-    public void iAmReceived(RemoteDevice d) {
+    protected Device createDevice(RemoteDevice d) {
         try {
             final ObjectIdentifier oid = d.getObjectIdentifier();
 
@@ -105,20 +85,10 @@ public abstract class BaseDiscoveryCallable extends DeviceEventAdapter implement
                     d.setDeviceProperty(opr.getPropertyIdentifier(), value);
                 });
             }
-
-            if (properties.size() > 0) {
-                // Only send a request if we have to.
-                final PropertyValues values = RequestUtils.readProperties(localDevice, d, properties, false, null);
-
-                values.forEach((opr) -> {
-                    final Encodable value = values.getNullOnError(oid, opr.getPropertyIdentifier());
-                    d.setDeviceProperty(opr.getPropertyIdentifier(), value);
-                });
-            }
         } catch (BACnetException e) {
             logger.error("Could not collect additional device information", e);
         }
-        Device device = createDevice(d);
+        Device device = deviceFactory.createDevice(d);
         if (d.getModelName() != null && !d.getModelName().isEmpty()) {
             device.setModelName(d.getModelName());
         }
@@ -131,15 +101,18 @@ public abstract class BaseDiscoveryCallable extends DeviceEventAdapter implement
         if (!d.getServicesSupported().isReadPropertyMultiple()) {
             device.setReadPropertyMultiple(false);
         }
-        devices.add(device);
+        return device;
+    }
+
+    @Override
+    public void iAmReceived(RemoteDevice d) {
+        Device device = createDevice(d);
         this.listener.deviceDiscovered(device);
     }
 
-    protected abstract Device createDevice(RemoteDevice remoteDevice);
-
     @Override
     public void listenerException(Throwable e) {
-        this.exception = e;
+        logger.warn("Error while running discovery process", e);
     }
 
     private static void addIfMissing(final RemoteDevice d, final PropertyReferences properties, final PropertyIdentifier pid) {

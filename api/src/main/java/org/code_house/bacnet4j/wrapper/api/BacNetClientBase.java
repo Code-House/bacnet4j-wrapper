@@ -1,18 +1,5 @@
 package org.code_house.bacnet4j.wrapper.api;
 
-import com.serotonin.bacnet4j.RemoteDevice;
-import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
-import com.serotonin.bacnet4j.util.RemoteDeviceFinder.RemoteDeviceFuture;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.ServiceFuture;
 import com.serotonin.bacnet4j.exception.BACnetException;
@@ -21,6 +8,7 @@ import com.serotonin.bacnet4j.service.acknowledgement.ReadPropertyMultipleAck;
 import com.serotonin.bacnet4j.service.confirmed.ReadPropertyMultipleRequest;
 import com.serotonin.bacnet4j.service.confirmed.ReadPropertyRequest;
 import com.serotonin.bacnet4j.service.confirmed.WritePropertyRequest;
+import com.serotonin.bacnet4j.service.unconfirmed.WhoIsRequest;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.ReadAccessResult;
 import com.serotonin.bacnet4j.type.constructed.ReadAccessSpecification;
@@ -29,6 +17,22 @@ import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.code_house.bacnet4j.wrapper.api.util.ForwardingAdapter;
+import org.code_house.bacnet4j.wrapper.device.DefaultDeviceFactory;
+import org.code_house.bacnet4j.wrapper.device.DeviceFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class BacNetClientBase implements BacNetClient {
 
@@ -36,6 +40,7 @@ public abstract class BacNetClientBase implements BacNetClient {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
     protected final LocalDevice localDevice;
+    protected final DeviceFactory deviceFactory;
 
     protected final ExecutorService executor = Executors.newFixedThreadPool(2, r -> {
         Thread thread = new Thread(r, "bacnet-client-" + instances.incrementAndGet() + "-discovery");
@@ -44,7 +49,12 @@ public abstract class BacNetClientBase implements BacNetClient {
     });
 
     protected BacNetClientBase(LocalDevice device) {
-        localDevice = device;
+        this(device, new DefaultDeviceFactory());
+    }
+
+    protected BacNetClientBase(LocalDevice device, DeviceFactory deviceFactory) {
+        this.localDevice = device;
+        this.deviceFactory = deviceFactory;
     }
 
     @Override
@@ -68,6 +78,71 @@ public abstract class BacNetClientBase implements BacNetClient {
     }
 
     @Override
+    public CompletableFuture<Void> listenForDevices(DeviceDiscoveryListener discoveryListener) {
+        return listenForDevices(discoveryListener, new WhoIsRequest());
+    }
+
+    @Override
+    public CompletableFuture<Void> listenForDevices(DeviceDiscoveryListener discoveryListener, Integer min, Integer max) {
+        return listenForDevices(discoveryListener, new WhoIsRequest(
+            min == null ? null : new UnsignedInteger(min),
+            max == null ? null : new UnsignedInteger(max)
+        ));
+    }
+
+    protected CompletableFuture<Void> listenForDevices(DeviceDiscoveryListener discoveryListener, WhoIsRequest request) {
+        ForwardingAdapter listener = new ForwardingAdapter(executor, new DiscoveryEventAdapter(discoveryListener, deviceFactory, localDevice));
+        localDevice.getEventHandler().addListener(listener);
+        localDevice.sendGlobalBroadcast(request);
+
+        return new CompletableFuture<>() {
+            @Override
+            public boolean cancel(boolean b) {
+                complete(null);
+                localDevice.getEventHandler().removeListener(listener);
+                return super.cancel(b);
+            }
+        };
+    }
+
+    @Override
+    public CompletableFuture<Set<Device>> doDiscoverDevices(final DeviceDiscoveryListener discoveryListener, final long timeout) {
+        BlockingDiscoveryCallable callable = new BlockingDiscoveryCallable(discoveryListener, deviceFactory, localDevice, timeout, timeout / 10);
+        ForwardingAdapter listener = new ForwardingAdapter(executor, callable);
+        localDevice.getEventHandler().addListener(listener);
+        localDevice.sendGlobalBroadcast(new WhoIsRequest());
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return callable.call();
+            } catch (Exception e) {
+                throw new BacNetClientException("Could not complete discovery task", e);
+            }
+        }, executor).whenComplete((devices, throwable) -> {
+            localDevice.getEventHandler().removeListener(listener);
+        });
+    }
+
+    @Override
+    public Set<Device> discoverDevices(final DeviceDiscoveryListener discoveryListener, final long timeout) {
+        BlockingDiscoveryCallable callable = new BlockingDiscoveryCallable(discoveryListener, deviceFactory, localDevice, timeout, timeout / 10);
+        ForwardingAdapter listener = new ForwardingAdapter(executor, callable);
+        try {
+            localDevice.getEventHandler().addListener(listener);
+            Future<Set<Device>> future = executor.submit(callable);
+            localDevice.sendGlobalBroadcast(new WhoIsRequest());
+            // this will block for at least timeout milliseconds
+            return future.get();
+        } catch (ExecutionException e) {
+            logger.error("Device discovery have failed", e);
+        } catch (InterruptedException e) {
+            logger.error("Could not discover devices due to timeout", e);
+        } finally {
+            localDevice.getEventHandler().removeListener(listener);
+        }
+        return Collections.emptySet();
+    }
+
+    @Override
     public List<BacNetObject> getDeviceObjects(Device device) {
         try {
             ReadPropertyAck ack = localDevice.send(device.getBacNet4jAddress(),
@@ -81,7 +156,10 @@ public abstract class BacNetClientBase implements BacNetClient {
                 logger.trace("Creating property from object identifier {}", id);
                 try {
                     if (ObjectType.device.equals(id.getObjectType())) {
-                        objects.add(createObject(device, id));
+                        if (device.getInstanceNumber() != id.getInstanceNumber()) {
+                            // track only sub-devices, no point in tracking device itself again
+                            objects.add(createObject(device, id));
+                        }
                         continue;
                     }
                     objects.add(createObject(device, id));

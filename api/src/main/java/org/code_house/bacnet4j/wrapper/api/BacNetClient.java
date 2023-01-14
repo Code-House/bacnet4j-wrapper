@@ -35,6 +35,29 @@ public interface BacNetClient {
 
     void stop();
 
+    /**
+     * No timeout variant of discovery.
+     *
+     * This operation will send a discovery packet and wait for results as long as future is not cancelled.
+     *
+     * @param discoveryListener Listener which will get information about discovery devices.
+     * @return Future which allows to stop discovery.
+     */
+    CompletableFuture<Void> listenForDevices(DeviceDiscoveryListener discoveryListener);
+
+    /**
+     * No timeout variant of discovery with range options.
+     *
+     * This operation will send a discovery packet and wait for results as long as future is not cancelled.
+     * Discovery request will contain instance limits.
+     *
+     * @param discoveryListener Listener which will get information about discovery devices.
+     * @param min Optional minimum device number.
+     * @param max Optional maximum device number.
+     * @return Future which allows to stop discovery.
+     */
+    CompletableFuture<Void> listenForDevices(DeviceDiscoveryListener discoveryListener, Integer min, Integer max);
+
     CompletableFuture<Set<Device>> doDiscoverDevices(DeviceDiscoveryListener discoveryListener, long timeout);
 
     Set<Device> discoverDevices(long timeout);

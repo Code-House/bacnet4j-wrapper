@@ -24,7 +24,7 @@ class PrintingVisitor implements Visitor {
             IpDevice ipDevice = (IpDevice) device;
             output.println("       Address: " + ipDevice.getHostAddress() + ":" + ipDevice.getPort());
         } else {
-            output.println("       Address: " + new OctetString(device.getAddress()).toString());
+            output.println("       Address: " + new OctetString(device.getAddress()));
         }
         output.println("       Name: " + device.getName());
         output.println("       Model: " + device.getModelName());
