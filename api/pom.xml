@@ -43,14 +43,20 @@
         <dependency>
             <groupId>com.infiniteautomation</groupId>
             <artifactId>bacnet4j</artifactId>
+            <scope>compile</scope>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>lohbihler</groupId>
-            <artifactId>sero-scheduler </artifactId>
+            <artifactId>sero-scheduler</artifactId>
+            <scope>compile</scope>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>lohbihler</groupId>
             <artifactId>sero-warp</artifactId>
+            <scope>compile</scope>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 

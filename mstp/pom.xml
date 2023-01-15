@@ -45,19 +45,6 @@
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>com.infiniteautomation</groupId>
-            <artifactId>bacnet4j</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>lohbihler</groupId>
-            <artifactId>sero-scheduler</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>lohbihler</groupId>
-            <artifactId>sero-warp</artifactId>
-        </dependency>
     </dependencies>
 
 </project>
