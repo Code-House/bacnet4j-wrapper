@@ -41,28 +41,16 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.serotonin</groupId>
+            <groupId>com.infiniteautomation</groupId>
             <artifactId>bacnet4j</artifactId>
-            <version>${bacnet4j.version}</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/../lib/bacnet4j-${bacnet4j.version}.jar</systemPath>
-            <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>ai.serotonin.oss</groupId>
+            <groupId>lohbihler</groupId>
             <artifactId>sero-scheduler </artifactId>
-            <version>${sero-scheduler.version}</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/../lib/sero-scheduler-${sero-scheduler.version}.jar</systemPath>
-            <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>ai.serotonin.oss</groupId>
+            <groupId>lohbihler</groupId>
             <artifactId>sero-warp</artifactId>
-            <version>${sero-warp.version}</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/../lib/sero-warp-${sero-warp.version}.jar</systemPath>
-            <optional>true</optional>
         </dependency>
     </dependencies>
 

@@ -65,6 +65,16 @@
         <log4j.version>1.2.17</log4j.version>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>ias-release</id>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>false</enabled></snapshots>
+            <name>Infinite Automation Release Repository</name>
+            <url>https://maven.mangoautomation.net/repository/ias-release/</url>
+        </repository>
+    </repositories>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -73,15 +83,15 @@
                 <version>${project.version}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>com.serotonin</groupId>
+                        <groupId>com.infiniteautomation</groupId>
                         <artifactId>bacnet4j</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>ai.serotonin.oss</groupId>
+                        <groupId>lohbihler</groupId>
                         <artifactId>sero-scheduler </artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>ai.serotonin.oss</groupId>
+                        <groupId>lohbihler</groupId>
                         <artifactId>sero-warp</artifactId>
                     </exclusion>
                 </exclusions>
@@ -107,6 +117,21 @@
                 <version>${slf4j.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.infiniteautomation</groupId>
+                <artifactId>bacnet4j</artifactId>
+                <version>${bacnet4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>lohbihler</groupId>
+                <artifactId>sero-scheduler</artifactId>
+                <version>${sero-scheduler.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>lohbihler</groupId>
+                <artifactId>sero-warp</artifactId>
+                <version>${sero-warp.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
@@ -134,7 +159,7 @@
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
-                    <version>5.1.8</version>
+                    <version>4.2.1</version>
                     <configuration>
                         <instructions>
                             <Import-Package>${osgi.import}</Import-Package>
