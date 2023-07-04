@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.code-house.bacnet4j</groupId>
         <artifactId>bacnet4j-wrapper</artifactId>
-        <version>1.3.0-SNAPSHOT</version>
+        <version>1.3.0-alpha3</version>
     </parent>
 
     <artifactId>ip</artifactId>
