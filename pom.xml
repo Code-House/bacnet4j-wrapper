@@ -50,6 +50,7 @@
         <module>api</module>
         <module>ip</module>
         <module>mstp</module>
+        <module>mstp-serial</module>
         <module>assembly</module>
     </modules>
 
@@ -61,6 +62,7 @@
         <bacnet4j.version>6.0.0</bacnet4j.version>
         <sero-warp.version>1.0.0</sero-warp.version>
         <sero-scheduler.version>1.1.0</sero-scheduler.version>
+        <purejavacomm.version>1.0.5</purejavacomm.version>
         <slf4j.version>1.7.12</slf4j.version>
         <log4j.version>1.2.17</log4j.version>
     </properties>
@@ -136,6 +138,11 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons-lang3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensmarthouse</groupId>
+                <artifactId>purejavacomm</artifactId>
+                <version>${purejavacomm.version}</version>
             </dependency>
 
             <dependency>

@@ -9,15 +9,15 @@
         <version>1.3.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>mstp</artifactId>
+    <artifactId>mstp-serial</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Code-House :: Bacnet4J Wrapper :: MSTP</name>
-    <description>Implementation of bacnet4j wrapper based on MSTP/serial interface.</description>
+    <name>Code-House :: Bacnet4J Wrapper :: MSTP Serial adapter</name>
+    <description>Universal serial adapter for MSTP client.</description>
 
     <properties>
         <osgi.import>
-            !jssc,
+            org.code_house.bacnet4j.wrapper.mstp,
             *
         </osgi.import>
         <osgi.export>
@@ -28,7 +28,15 @@
     <dependencies>
         <dependency>
             <groupId>org.code-house.bacnet4j</groupId>
-            <artifactId>api</artifactId>
+            <artifactId>mstp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opensmarthouse</groupId>
+            <artifactId>purejavacomm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.infiniteautomation</groupId>
+            <artifactId>bacnet4j</artifactId>
         </dependency>
 
         <dependency>
