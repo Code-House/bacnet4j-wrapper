@@ -36,9 +36,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git://github.com/Code-House/bacnet4j-wrapper.git</connection>
+        <connection>scm:git:https://github.com/Code-House/bacnet4j-wrapper.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/Code-House/bacnet4j-wrapper.git</developerConnection>
-        <url>https://github.com/Code-House/karaf-jackson</url>
+        <url>https://github.com/Code-House/bacnet4j-wrapper</url>
     </scm>
 
     <issueManagement>
