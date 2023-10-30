@@ -72,12 +72,20 @@ As of 1.2.x there is support for additional object types, however they are consi
 * largeAnalogValue
 * octetstringValue
 * timeValue
+* dateValue
 * integerValue
 * positiveIntegerValue
 * datetimePatternValue
 * timePatternValue
 * datePatternValue
 * accumulator
+* device
+* trendLog
+* file
+
+As of 1.3.x version there is support for following object types:
+
+* notificationClass
 
 Most of them is still commendable and supports access through `present value` property, but some of them bring additional properties
 which are not visible through wrapper APIs.
@@ -87,7 +95,7 @@ If you are interested in adding other types of objects to API feel free to submi
 Each property of type enlisted above can be read and attempted to set via `client.getPropertyValue` and `client.setPropertyValue` method calls.
 There are two variants of set/get property methods - with and without converter argument.
 If you know type of property then you can convert it upfront to bacnet4j structure.
-By default library will try to guess, however in most of cases it will fail.
+By default, library will try to guess, however in most of the cases it may fail.
 
 ### How to build
 
@@ -99,4 +107,5 @@ To build project you need:
 
 * [Mango Automation BACnet4J](https://github.com/MangoAutomation/BACnet4J) - this is currently maintained version of BACnet4J used in this project.
 * [Bacnet4J site](http://bacnet.sourceforge.net)
-* [BACNet-openHAB-binding](https://github.com/openhab/org.openhab.binding.bacnet) - openhab binding which uses this project.
+* [ConnectorIO Addons](https://github.com/connectorio/connectorio-addons) - consist a bacnet binding which integrates bacnet networks (mstp and ip) with openhab 2.x and above 
+* [BACNet-openHAB-binding](https://github.com/openhab/org.openhab.binding.bacnet) - openhab 1.x binding which uses this project.

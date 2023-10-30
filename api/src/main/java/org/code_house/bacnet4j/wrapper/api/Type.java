@@ -38,6 +38,8 @@ public enum Type {
     MULTISTATE_OUTPUT("multiStateOutput", ObjectType.multiStateOutput),
     MULTISTATE_VALUE("multiStateValue", ObjectType.multiStateValue),
 
+    NOTIFICATION_CLASS("notificationClass", ObjectType.notificationClass),
+
     CALENDAR ("calendar", ObjectType.calendar),
     PULSE_CONVETHING_RTER("pulseCoverter", ObjectType.pulseConverter),
 
@@ -57,7 +59,7 @@ public enum Type {
 
     DEVICE ("device", ObjectType.device),
     TREND_LOG ("trendLog", ObjectType.trendLog),
-    FILE ("trendLog", ObjectType.file);
+    FILE ("file", ObjectType.file);
 
 
     private final String name;
