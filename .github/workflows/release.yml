@@ -27,7 +27,8 @@ jobs:
         run: |
           git config user.email "ci@connectorio.com"
           git config user.name "ConnectorIO Bot"
-          git config --global url."https://${BUILD_USER}:${BUILD_TOKEN}@github.com/".insteadOf "git@github.com:"
+          git config url."https://${BUILD_USER}:${BUILD_TOKEN}@github.com/".insteadOf "git@github.com:"
+          cat .git/config
         env:
           BUILD_USER: x-access-token
           BUILD_TOKEN: ${{ secrets.GITHUB_TOKEN }}
