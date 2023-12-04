@@ -51,6 +51,7 @@
         <module>ip</module>
         <module>mstp</module>
         <module>assembly</module>
+        <module>docker</module>
     </modules>
 
     <properties>
