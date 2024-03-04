@@ -239,6 +239,7 @@ public abstract class BacNetClientBase implements BacNetClient {
                     throw new BacNetClientException("Unable to read object properties.", e);
                 }
             }
+            return values;
         }
 
         List<ReadAccessSpecification> specifications = new ArrayList<>();
