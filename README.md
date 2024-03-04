@@ -1,6 +1,6 @@
 # Code-House Bacnet4J wrapper
 
-[![Maven build](https://github.com/Code-House/bacnet4j-wrapper/actions/workflows/maven.yml/badge.svg)](https://github.com/Code-House/bacnet4j-wrapper/actions/workflows/maven.yml)
+[![Maven build](https://github.com/Code-House/bacnet4j-wrapper/actions/workflows/maven.yml/badge.svg)](https://github.com/Code-House/bacnet4j-wrapper/actions/workflows/push.yml)
 [![Maven release](https://github.com/Code-House/bacnet4j-wrapper/actions/workflows/release.yml/badge.svg?event=release)](https://github.com/Code-House/bacnet4j-wrapper/actions/workflows/release.yml)
 
 [![GitHub license](https://img.shields.io/github/license/Code-House/bacnet4j-wrapper.svg)](https://github.com/Code-House/bacnet4j-wrapper/blob/master/LICENSE)
