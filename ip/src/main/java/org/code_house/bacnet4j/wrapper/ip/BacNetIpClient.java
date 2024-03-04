@@ -44,6 +44,11 @@ public class BacNetIpClient extends BacNetClientBase {
         super(new LocalDevice(deviceId, new DefaultTransport(network)));
     }
 
+    public BacNetIpClient(String ip, String broadcast, int port, int deviceId, boolean reuseAddress) {
+        this(new IpNetworkBuilder().withLocalBindAddress(ip).withBroadcast(broadcast, 24).withPort(port)
+            .withReuseAddress(reuseAddress).build(), deviceId);
+    }
+
     public BacNetIpClient(String ip, String broadcast, int port, int deviceId) {
         this(new IpNetworkBuilder().withLocalBindAddress(ip).withBroadcast(broadcast, 24).withPort(port).build(), deviceId);
     }
