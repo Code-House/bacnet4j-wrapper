@@ -1,0 +1,20 @@
+name: Build pull request
+
+on:
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    permissions:
+      checks: write
+      contents: read
+    uses: 'connectorio/gh-actions-shared/.github/workflows/maven.yml@master'
+    secrets:
+      CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
+      CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
+    with:
+      openhab: false
+      server_id: sonatype-nexus-snapshots
+      deploy: true
+      skip_test_publish: true
