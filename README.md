@@ -1,6 +1,8 @@
 # Code-House Bacnet4J wrapper
 
-[![CircleCI build](https://circleci.com/gh/Code-House/bacnet4j-wrapper/tree/1.2.x.svg?style=svg)](https://circleci.com/gh/Code-House/bacnet4j-wrapper/tree/1.2.x)
+[![Maven build](https://github.com/Code-House/bacnet4j-wrapper/actions/workflows/maven.yml/badge.svg)](https://github.com/Code-House/bacnet4j-wrapper/actions/workflows/maven.yml)
+[![Maven release](https://github.com/Code-House/bacnet4j-wrapper/actions/workflows/release.yml/badge.svg?event=release)](https://github.com/Code-House/bacnet4j-wrapper/actions/workflows/release.yml)
+
 [![GitHub license](https://img.shields.io/github/license/Code-House/bacnet4j-wrapper.svg)](https://github.com/Code-House/bacnet4j-wrapper/blob/master/LICENSE)
 [![GitHub release](https://img.shields.io/github/release/Code-House/bacnet4j-wrapper.svg)](https://GitHub.com/Code-House/bacnet4j-wrapper/releases/)
 [![Github all releases](https://img.shields.io/github/downloads/Code-House/bacnet4j-wrapper/total.svg)](https://GitHub.com/Code-House/bacnet4j-wrapper/releases/)
